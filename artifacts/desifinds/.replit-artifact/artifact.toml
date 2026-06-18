@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "DesiFinds"
+version = "1.0.0"
+id = "artifacts/desifinds"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19993
+
+[services.development]
+run = "pnpm --filter @workspace/desifinds run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/desifinds", "run", "build" ]
+publicDir = "artifacts/desifinds/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19993"
+BASE_PATH = "/"

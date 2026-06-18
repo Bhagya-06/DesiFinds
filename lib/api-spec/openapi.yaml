@@ -1,22 +1,24 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: DesiFinds API - Indian product recommendation engine
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: search
+    description: Product search and recommendations
+  - name: products
+    description: Product catalog
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +26,154 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /search:
+    post:
+      operationId: searchProducts
+      tags: [search]
+      summary: Search for Indian alternatives
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchInput"
+      responses:
+        "200":
+          description: Search results with recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResult"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products with optional filters
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: brand
+          in: query
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: minRating
+          in: query
+          schema:
+            type: number
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Product list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResult"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a single product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [products]
+      summary: List all product categories with counts
+      responses:
+        "200":
+          description: Category list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryStat"
+
+  /brands:
+    get:
+      operationId: listBrands
+      tags: [products]
+      summary: List featured Indian brands
+      responses:
+        "200":
+          description: Brand list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Brand"
+
+  /trending:
+    get:
+      operationId: getTrending
+      tags: [products]
+      summary: Get trending products and popular searches
+      responses:
+        "200":
+          description: Trending data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrendingResult"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +184,249 @@ components:
       required:
         - status
 
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SearchInput:
+      type: object
+      properties:
+        query:
+          type: string
+        apiKey:
+          type: ["string", "null"]
+      required:
+        - query
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        brand:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        materials:
+          type: array
+          items:
+            type: string
+        price:
+          type: number
+        originalPrice:
+          type: ["number", "null"]
+        rating:
+          type: number
+        reviewCount:
+          type: integer
+        productUrl:
+          type: string
+        imageUrl:
+          type: string
+        brandUrl:
+          type: string
+        reviewSummary:
+          type: string
+        madeInIndia:
+          type: boolean
+        badges:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - brand
+        - name
+        - description
+        - category
+        - tags
+        - materials
+        - price
+        - rating
+        - reviewCount
+        - productUrl
+        - imageUrl
+        - brandUrl
+        - reviewSummary
+        - madeInIndia
+        - badges
+
+    ProductMatch:
+      type: object
+      properties:
+        product:
+          $ref: "#/components/schemas/Product"
+        matchScore:
+          type: integer
+        matchReason:
+          type: string
+        valueProp:
+          type: string
+        priceSavings:
+          type: ["number", "null"]
+      required:
+        - product
+        - matchScore
+        - matchReason
+        - valueProp
+
+    ProductAnalysis:
+      type: object
+      properties:
+        category:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        materials:
+          type: array
+          items:
+            type: string
+        priceRange:
+          type: string
+        aestheticStyle:
+          type: string
+        originalBrand:
+          type: string
+      required:
+        - category
+        - features
+        - materials
+        - priceRange
+        - aestheticStyle
+        - originalBrand
+
+    WorkflowStep:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+        output:
+          type: string
+      required:
+        - name
+        - status
+        - output
+
+    SearchResult:
+      type: object
+      properties:
+        query:
+          type: string
+        analysis:
+          $ref: "#/components/schemas/ProductAnalysis"
+        matches:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductMatch"
+        workflow:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkflowStep"
+        aiPowered:
+          type: boolean
+      required:
+        - query
+        - analysis
+        - matches
+        - workflow
+        - aiPowered
+
+    ProductListResult:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        total:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - products
+        - total
+        - offset
+        - limit
+
+    CategoryStat:
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+        icon:
+          type: string
+      required:
+        - name
+        - count
+        - icon
+
+    Brand:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        logoUrl:
+          type: string
+        websiteUrl:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+        founded:
+          type: string
+        featured:
+          type: boolean
+      required:
+        - name
+        - slug
+        - description
+        - logoUrl
+        - websiteUrl
+        - categories
+        - founded
+        - featured
+
+    TrendingResult:
+      type: object
+      properties:
+        popularSearches:
+          type: array
+          items:
+            type: string
+        topProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        newArrivals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+      required:
+        - popularSearches
+        - topProducts
+        - newArrivals

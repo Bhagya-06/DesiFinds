@@ -1,0 +1,185 @@
+Homepage Experience
+
+Design inspiration:
+
+Perplexity AI + Amazon + Apple
+
+Layout:
+
+Hero Section
+
+DesiFinds
+
+Find Better. Find Indian.
+
+Search bar supporting:
+
+Product name
+Brand name
+Product URL
+
+Example searches:
+
+Zara Linen Shirt
+AirPods Pro
+Logitech MX Master Mouse
+CeraVe Moisturizer
+Featured Collections
+
+Horizontal cards:
+
+Fashion
+Electronics
+Skincare
+Footwear
+Watches
+Home Decor
+Bags
+Trending Indian Brands
+
+Show brand cards:
+
+Zouk
+Mokobara
+Minimalist
+Snitch
+Rare Rabbit
+boAt
+Noise
+Titan
+Dot & Key
+Recent Searches
+
+Display recent searches as chips.
+
+Example:
+
+AirPods Pro
+Zara Linen Shirt
+Nike Sneakers
+Results Page
+
+Modern ecommerce card layout.
+
+Each card should contain:
+
+Product Image
+Match Score Badge
+
+Example:
+
+95% Match
+Made in India Badge
+🇮🇳 Made in India
+Better Value Badge
+
+Examples:
+
+Premium Quality
+Better Value
+Highly Rated
+Handcrafted
+Review Summary
+
+Example:
+
+Customers praise the fabric quality and premium finish.
+
+Why This Match?
+
+Example:
+
+Similar premium linen fabric, minimalist aesthetic, and better value than Zara.
+
+Buttons
+View Product
+Visit Brand
+Product Details Modal
+
+Display:
+
+Description
+Materials Used
+Price Comparison
+
+Original Product
+
+₹3990
+
+↓
+
+Indian Alternative
+
+₹2499
+
+Review Summary
+Similarity Explanation
+
+Explain why the recommendation was chosen.
+
+Workflow Viewer Page
+
+Visualize LangGraph execution:
+
+User Query
+↓
+Product Deconstructor
+↓
+RAG Matcher
+↓
+Quality Curator
+↓
+Formatter
+
+Show:
+
+Node status
+Intermediate outputs
+Retrieved products
+
+This is excellent for demonstrations.
+
+Premium UI Theme
+
+Colors:
+
+Warm ivory background
+Saffron accents
+Peacock blue highlights
+Emerald buttons
+
+Indian elements:
+
+Subtle paisley patterns
+Minimal lotus dividers
+Rounded cards
+Soft shadows
+
+Avoid excessive patriotic colors.
+
+Keep the design elegant and startup-like.
+
+Additional Features
+Dark Mode
+Loading Skeletons
+Search Suggestions
+Category Filters
+Price Filters
+Rating Filters
+Sort By
+Best Match
+Price Low to High
+Highest Rated
+Favorites/Wishlist
+
+Save products locally.
+
+Footer
+
+Sections:
+
+About DesiFinds
+Mission
+Made in India Brands
+Categories
+GitHub
