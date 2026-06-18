@@ -9,7 +9,11 @@
 export * from './apiError';
 export * from './brand';
 export * from './categoryStat';
+export * from './chatInput';
+export * from './chatMessage';
+export * from './chatResult';
 export * from './healthStatus';
+export * from './ingestInput';
 export * from './listProductsParams';
 export * from './product';
 export * from './productAnalysis';
@@ -18,4 +22,5 @@ export * from './productMatch';
 export * from './searchInput';
 export * from './searchResult';
 export * from './trendingResult';
+export * from './triggerIngestion200';
 export * from './workflowStep';

@@ -58,6 +58,58 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
 
+  /chat:
+    post:
+      operationId: chatAssistant
+      tags: [search]
+      summary: Chat with DesiFinds AI shopping assistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatInput"
+      responses:
+        "200":
+          description: Chat response and history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResult"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /ingest:
+    post:
+      operationId: triggerIngestion
+      tags: [products]
+      summary: Trigger bulk product ingestion to ChromaDB
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngestInput"
+      responses:
+        "200":
+          description: Ingestion status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - status
+                  - message
+
   /products:
     get:
       operationId: listProducts
@@ -201,6 +253,60 @@ components:
           type: ["string", "null"]
       required:
         - query
+
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+        content:
+          type: string
+      required:
+        - role
+        - content
+
+    ChatInput:
+      type: object
+      properties:
+        message:
+          type: string
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        apiKey:
+          type: ["string", "null"]
+      required:
+        - message
+
+    ChatResult:
+      type: object
+      properties:
+        response:
+          type: string
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        retrievedProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+      required:
+        - response
+        - history
+        - retrievedProducts
+
+    IngestInput:
+      type: object
+      properties:
+        apiKey:
+          type: string
+        force:
+          type: boolean
+          default: false
+      required:
+        - apiKey
 
     Product:
       type: object

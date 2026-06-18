@@ -19,6 +19,18 @@ export interface SearchInput {
   apiKey?: string | null;
 }
 
+export interface ChatMessage {
+  role: string;
+  content: string;
+}
+
+export interface ChatInput {
+  message: string;
+  history?: ChatMessage[];
+  /** @nullable */
+  apiKey?: string | null;
+}
+
 export interface Product {
   id: string;
   brand: string;
@@ -38,6 +50,17 @@ export interface Product {
   reviewSummary: string;
   madeInIndia: boolean;
   badges: string[];
+}
+
+export interface ChatResult {
+  response: string;
+  history: ChatMessage[];
+  retrievedProducts: Product[];
+}
+
+export interface IngestInput {
+  apiKey: string;
+  force?: boolean;
 }
 
 export interface ProductMatch {
@@ -101,6 +124,11 @@ export interface TrendingResult {
   topProducts: Product[];
   newArrivals: Product[];
 }
+
+export type TriggerIngestion200 = {
+  status: string;
+  message: string;
+};
 
 export type ListProductsParams = {
 category?: string;

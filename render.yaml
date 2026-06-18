@@ -1,0 +1,20 @@
+# Render Blueprint specification for DesiFinds backend
+# See https://render.com/docs/blueprints for details
+services:
+  - type: web
+    name: desifinds-backend
+    runtime: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: OPENAI_API_KEY
+        sync: false # Input this key in the Render dashboard
+      - key: LANGCHAIN_TRACING_V2
+        value: "false" # Set to "true" if you want to use LangSmith
+      - key: LANGCHAIN_API_KEY
+        sync: false # Input this key in the Render dashboard if tracing is enabled
+      - key: LANGCHAIN_PROJECT
+        value: "desifinds"

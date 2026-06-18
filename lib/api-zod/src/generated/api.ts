@@ -69,6 +69,62 @@ export const SearchProductsResponse = zod.object({
 
 
 /**
+ * @summary Chat with DesiFinds AI shopping assistant
+ */
+export const ChatAssistantBody = zod.object({
+  "message": zod.string(),
+  "history": zod.array(zod.object({
+  "role": zod.string(),
+  "content": zod.string()
+})).optional(),
+  "apiKey": zod.string().nullish()
+})
+
+export const ChatAssistantResponse = zod.object({
+  "response": zod.string(),
+  "history": zod.array(zod.object({
+  "role": zod.string(),
+  "content": zod.string()
+})),
+  "retrievedProducts": zod.array(zod.object({
+  "id": zod.string(),
+  "brand": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "category": zod.string(),
+  "tags": zod.array(zod.string()),
+  "materials": zod.array(zod.string()),
+  "price": zod.number(),
+  "originalPrice": zod.number().nullish(),
+  "rating": zod.number(),
+  "reviewCount": zod.number(),
+  "productUrl": zod.string(),
+  "imageUrl": zod.string(),
+  "brandUrl": zod.string(),
+  "reviewSummary": zod.string(),
+  "madeInIndia": zod.boolean(),
+  "badges": zod.array(zod.string())
+}))
+})
+
+
+/**
+ * @summary Trigger bulk product ingestion to ChromaDB
+ */
+export const triggerIngestionBodyForceDefault = false;
+
+export const TriggerIngestionBody = zod.object({
+  "apiKey": zod.string(),
+  "force": zod.boolean().default(triggerIngestionBodyForceDefault)
+})
+
+export const TriggerIngestionResponse = zod.object({
+  "status": zod.string(),
+  "message": zod.string()
+})
+
+
+/**
  * @summary List all products with optional filters
  */
 export const listProductsQueryLimitDefault = 50;

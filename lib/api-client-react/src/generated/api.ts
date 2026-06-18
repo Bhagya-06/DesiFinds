@@ -23,13 +23,17 @@ import type {
   ApiError,
   Brand,
   CategoryStat,
+  ChatInput,
+  ChatResult,
   HealthStatus,
+  IngestInput,
   ListProductsParams,
   Product,
   ProductListResult,
   SearchInput,
   SearchResult,
-  TrendingResult
+  TrendingResult,
+  TriggerIngestion200
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -190,6 +194,148 @@ export const useSearchProducts = <TError = ErrorType<ApiError>,
         TContext
       > => {
       return useMutation(getSearchProductsMutationOptions(options));
+    }
+
+export const getChatAssistantUrl = () => {
+
+
+
+
+  return `/api/chat`
+}
+
+/**
+ * @summary Chat with DesiFinds AI shopping assistant
+ */
+export const chatAssistant = async (chatInput: ChatInput, options?: RequestInit): Promise<ChatResult> => {
+
+  return customFetch<ChatResult>(getChatAssistantUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      chatInput,)
+  }
+);}
+
+
+
+
+export const getChatAssistantMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof chatAssistant>>, TError,{data: BodyType<ChatInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof chatAssistant>>, TError,{data: BodyType<ChatInput>}, TContext> => {
+
+const mutationKey = ['chatAssistant'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof chatAssistant>>, {data: BodyType<ChatInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  chatAssistant(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ChatAssistantMutationResult = NonNullable<Awaited<ReturnType<typeof chatAssistant>>>
+    export type ChatAssistantMutationBody = BodyType<ChatInput>
+    export type ChatAssistantMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Chat with DesiFinds AI shopping assistant
+ */
+export const useChatAssistant = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof chatAssistant>>, TError,{data: BodyType<ChatInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof chatAssistant>>,
+        TError,
+        {data: BodyType<ChatInput>},
+        TContext
+      > => {
+      return useMutation(getChatAssistantMutationOptions(options));
+    }
+
+export const getTriggerIngestionUrl = () => {
+
+
+
+
+  return `/api/ingest`
+}
+
+/**
+ * @summary Trigger bulk product ingestion to ChromaDB
+ */
+export const triggerIngestion = async (ingestInput: IngestInput, options?: RequestInit): Promise<TriggerIngestion200> => {
+
+  return customFetch<TriggerIngestion200>(getTriggerIngestionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      ingestInput,)
+  }
+);}
+
+
+
+
+export const getTriggerIngestionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof triggerIngestion>>, TError,{data: BodyType<IngestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof triggerIngestion>>, TError,{data: BodyType<IngestInput>}, TContext> => {
+
+const mutationKey = ['triggerIngestion'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof triggerIngestion>>, {data: BodyType<IngestInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  triggerIngestion(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TriggerIngestionMutationResult = NonNullable<Awaited<ReturnType<typeof triggerIngestion>>>
+    export type TriggerIngestionMutationBody = BodyType<IngestInput>
+    export type TriggerIngestionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Trigger bulk product ingestion to ChromaDB
+ */
+export const useTriggerIngestion = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof triggerIngestion>>, TError,{data: BodyType<IngestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof triggerIngestion>>,
+        TError,
+        {data: BodyType<IngestInput>},
+        TContext
+      > => {
+      return useMutation(getTriggerIngestionMutationOptions(options));
     }
 
 export const getListProductsUrl = (params?: ListProductsParams,) => {
