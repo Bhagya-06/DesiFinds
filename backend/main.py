@@ -152,22 +152,21 @@ def chat_assistant(payload: ChatInput):
             client = OpenAI(api_key=api_key)
             
             # Step A: Semantic retrieval from vector store if populated
-            if not is_brand_info_query:
-                # Compute embeddings for user query to find relevant products
-                from backend.ai.embeddings import get_openai_embeddings
-                q_emb_list = get_openai_embeddings([message], api_key)
-                if q_emb_list and vector_store.get_count() > 0:
-                    retrieved_products = vector_store.query_products(q_emb_list[0], n_results=3)
-                else:
-                    # Fallback to retriever keyword matching if vector store empty
-                    retrieved_products = retriever.retrieve_alternatives(
-                        query=message,
-                        category="Apparel",
-                        features=[],
-                        materials=[],
-                        api_key=api_key,
-                        n_results=3
-                    )
+            # We always perform product semantic search to ensure product context is supplied to the LLM
+            from backend.ai.embeddings import get_openai_embeddings
+            q_emb_list = get_openai_embeddings([message], api_key)
+            if q_emb_list and vector_store.get_count() > 0:
+                retrieved_products = vector_store.query_products(q_emb_list[0], n_results=3)
+            else:
+                # Fallback to retriever keyword matching if vector store empty
+                retrieved_products = retriever.retrieve_alternatives(
+                    query=message,
+                    category="Apparel",
+                    features=[],
+                    materials=[],
+                    api_key=api_key,
+                    n_results=3
+                )
                 
             # Construct context from products
             context_blocks = []
@@ -244,8 +243,9 @@ def chat_assistant(payload: ChatInput):
             print(f"OpenAI chatbot error: {e}")
             
     # 2. Heuristic fallback path if no API key or exception occurs
-    # Check if asking about founders/story in fallback
-    if mentioned_brands and any(keyword in message_lower for keyword in ["founder", "who started", "founded", "history", "story", "about"]):
+    brand_reply = ""
+    # Only show founder info if strictly asking about it
+    if mentioned_brands and any(keyword in message_lower for keyword in ["founder", "who started", "founded", "history", "story", "ceo", "about"]):
         replies = []
         for b in mentioned_brands:
             replies.append(
@@ -253,37 +253,34 @@ def chat_assistant(payload: ChatInput):
                 f"**Story**: {b.get('story', b['description'])}\n"
                 f"Website: [Visit {b['name']}]({b['websiteUrl']})"
             )
-        reply = "\n\n".join(replies) + "\n\n*Tip: Input your OpenAI API key in the sidebar to engage in a continuous conversation about brand stories and comparison metrics!*"
-        chat_history_store.append({"role": "assistant", "content": reply})
-        return {
-            "response": reply,
-            "history": chat_history_store,
-            "retrievedProducts": retrieved_products
-        }
+        brand_reply = "\n\n".join(replies) + "\n\n"
 
     # Standard product matching in fallback
     matched_items = []
     for p in products_cache:
         if p["category"].lower() in message_lower or p["name"].lower() in message_lower or p["brand"].lower() in message_lower:
             matched_items.append(p)
-            if len(matched_items) >= 3:
+            if len(matched_items) >= 4:
                 break
                 
     retrieved_products = matched_items
     
     if retrieved_products:
         reply_items = [f"- **{p['name']}** by {p['brand']} (₹{p['price']}): {p['description']}" for p in retrieved_products]
-        reply = (
+        product_reply = (
             f"Here are some premium Indian alternatives matching your query:\n" + 
-            "\n".join(reply_items) + 
-            "\n\nAdd your OpenAI API key in the Search or Chat sidebar to get full AI-powered reasoning, buying guides, and pros/cons analysis!"
+            "\n".join(reply_items)
         )
+        reply = brand_reply + product_reply + "\n\n*Tip: Input your OpenAI API key in the sidebar to engage in full AI-powered reasoning, buying guides, and pros/cons analysis!*"
     else:
-        reply = (
-            "Welcome to DesiFinds AI! Ask me about premium Indian alternatives in Apparel, Electronics, Skincare, Audio, and more. "
-            "For example: 'What is a good Indian alternative for CeraVe?' or 'Who founded boAt?'\n\n"
-            "Tip: Add your OpenAI API key in the toolbar or sidebar to enable deep semantic RAG chatbot discovery!"
-        )
+        if brand_reply:
+            reply = brand_reply + "*Tip: Input your OpenAI API key in the sidebar to engage in a continuous conversation about brand stories and comparison metrics!*"
+        else:
+            reply = (
+                "Welcome to DesiFinds AI! Ask me about premium Indian alternatives in Apparel, Electronics, Skincare, Audio, and more. "
+                "For example: 'What is a good Indian alternative for CeraVe?' or 'Who founded boAt?'\n\n"
+                "Tip: Add your OpenAI API key in the toolbar or sidebar to enable deep semantic RAG chatbot discovery!"
+            )
         
     chat_history_store.append({"role": "assistant", "content": reply})
     return {
