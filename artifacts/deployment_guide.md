@@ -74,9 +74,9 @@ Render reads our `render.yaml` file to set up the environment automatically. Not
 
 ## 🔗 Step 3: Link Vercel to Your Deployed Backend
 
-We must tell Vercel to forward all `/api` requests to your new backend server.
+We must tell Vercel to forward all `/api` requests to your new backend server. Since Vercel's Root Directory is set to `frontend`, it reads configuration rules from `frontend/vercel.json` (you should update both `vercel.json` at the root and `frontend/vercel.json` to be safe).
 
-1. Open [vercel.json](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/vercel.json) in your project root.
+1. Open [frontend/vercel.json](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/frontend/vercel.json) in your code editor.
 2. Replace the destination URL on line 6 with your actual backend URL:
    - For **Hugging Face**: Use `https://YOUR_HF_USERNAME-desifinds-api.hf.space/api/:path*`
    - For **Render**: Use `https://desifinds-backend-xxxx.onrender.com/api/:path*`

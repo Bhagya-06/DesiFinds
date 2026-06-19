@@ -118,6 +118,42 @@ def trigger_ingestion(payload: IngestInput):
     ingest_manager.start_ingestion_background(api_key, PRODUCTS_JSON_PATH, force)
     return {"status": "ingesting", "message": "Bulk product ingestion started in background"}
 
+def detect_category(message: str) -> tuple[str, int]:
+    message_lower = message.lower()
+    category_map = {
+        "Apparel": ["shirt", "kurta", "tshirt", "t-shirt", "jeans", "trouser", "linen", "cotton", "denim", "jacket", "hoodie", "saree", "kurti", "ethnic", "formal", "dress", "blouse", "sherwani", "pant", "chino", "zara", "h&m", "uniqlo", "levis", "levi's", "apparel", "clothing", "clothes"],
+        "Footwear": ["shoe", "sneaker", "chappal", "sandal", "boot", "runner", "trainer", "loafer", "derby", "oxford", "kolhapuri", "nike", "adidas", "puma", "footwear"],
+        "Electronics": ["laptop", "phone", "tablet", "keyboard", "mouse", "hub", "charger", "powerbank", "gadget", "smartwatch", "apple", "samsung", "logitech", "dyson", "electronics"],
+        "Audio": ["headphone", "earphone", "earbud", "airpod", "tws", "neckband", "soundbar", "earpiece", "music", "airpods", "bose", "sony", "jbl", "audio", "speaker", "ear buds"],
+        "Watches": ["watch", "timepiece", "smartwatch", "fitbit", "analog", "digital", "watches"],
+        "Skincare": ["moisturizer", "serum", "cleanser", "sunscreen", "face wash", "lotion", "cream", "toner", "mask", "spf", "niacinamide", "vitamin c", "cerave", "ordinary", "cetaphil", "neutrogena", "skincare", "skin care", "face"],
+        "Bags": ["bag", "backpack", "handbag", "tote", "luggage", "suitcase", "trolley", "wallet", "purse", "sling", "bags"],
+        "Jewelry": ["necklace", "ring", "earring", "bracelet", "jhumka", "kundan", "diamond", "gold", "silver", "pendant", "jewelry", "jewellery"],
+        "Furniture": ["sofa", "chair", "table", "desk", "shelf", "wardrobe", "bed", "mattress", "couch", "cabinet", "furniture"],
+        "Home Decor": ["vase", "lamp", "rug", "curtain", "pillow", "cushion", "art", "plant", "planter", "painting", "candle", "decor", "decoration"],
+        "Kitchen": ["cooker", "pan", "pot", "kadai", "tawa", "blender", "mixer", "bottle", "container", "utensil", "kitchen"],
+        "Fitness": ["mat", "dumbbell", "weight", "band", "yoga", "gym", "protein", "supplement", "kettlebell", "barbell", "fitness"],
+        "Perfumes": ["perfume", "fragrance", "cologne", "attar", "oud", "mist", "scent", "deodorant", "perfumes"],
+        "Eyewear": ["sunglasses", "spectacles", "glasses", "frames", "lens", "optical", "eyewear"]
+    }
+    
+    max_m = 0
+    detected = "Apparel"
+    for cat, keywords in category_map.items():
+        m = sum(1 for kw in keywords if kw in message_lower)
+        if m > max_m:
+            max_m = m
+            detected = cat
+            
+    return detected, max_m
+
+def has_product_intent(message: str, max_m: int) -> bool:
+    if max_m > 0:
+        return True
+    intent_keywords = ["alternative", "replace", "suggest", "recommend", "buy", "show", "product", "find", "get", "similar", "brand", "local", "indian", "choice", "option"]
+    message_lower = message.lower()
+    return any(kw in message_lower for kw in intent_keywords)
+
 @app.post("/api/chat")
 @app.post("/chat")
 def chat_assistant(payload: ChatInput):
@@ -144,6 +180,10 @@ def chat_assistant(payload: ChatInput):
             
     # Check if asking about founders/story/info of a brand
     is_brand_info_query = any(keyword in message_lower for keyword in ["founder", "who started", "founded", "history", "story", "about", "ceo"])
+    
+    # Detect query category and matching count
+    detected_cat, match_count = detect_category(message)
+    is_search_query = has_product_intent(message, match_count)
 
     # 1. AI RAG workflow
     if api_key:
@@ -161,7 +201,7 @@ def chat_assistant(payload: ChatInput):
                 # Fallback to retriever keyword matching if vector store empty
                 retrieved_products = retriever.retrieve_alternatives(
                     query=message,
-                    category="Apparel",
+                    category=detected_cat,
                     features=[],
                     materials=[],
                     api_key=api_key,
@@ -220,8 +260,12 @@ def chat_assistant(payload: ChatInput):
             )
             
             messages = [{"role": "system", "content": system_prompt}]
-            # Add request history (limit to last 5)
-            for h_msg in history[-5:]:
+            # Add request history (limit to last 5, avoiding duplication of the latest message)
+            history_to_send = list(history)
+            if history_to_send and history_to_send[-1].role == "user" and history_to_send[-1].content == message:
+                history_to_send.pop()
+                
+            for h_msg in history_to_send[-5:]:
                 messages.append({"role": h_msg.role, "content": h_msg.content})
                 
             messages.append({"role": "user", "content": message})
@@ -255,20 +299,31 @@ def chat_assistant(payload: ChatInput):
             )
         brand_reply = "\n\n".join(replies) + "\n\n"
 
-    # Standard product matching in fallback
-    matched_items = []
-    for p in products_cache:
-        if p["category"].lower() in message_lower or p["name"].lower() in message_lower or p["brand"].lower() in message_lower:
-            matched_items.append(p)
-            if len(matched_items) >= 4:
-                break
-                
-    retrieved_products = matched_items
+    # Smart fallback matching using retriever
+    if is_search_query:
+        retrieved_products = retriever.retrieve_alternatives(
+            query=message,
+            category=detected_cat,
+            features=[],
+            materials=[],
+            api_key=None,
+            n_results=4
+        )
+    else:
+        retrieved_products = []
     
     if retrieved_products:
-        reply_items = [f"- **{p['name']}** by {p['brand']} (₹{p['price']}): {p['description']}" for p in retrieved_products]
+        reply_items = []
+        for p in retrieved_products:
+            rating_str = f" ⭐ {p['rating']}" if p.get('rating') else ""
+            desc = p['description']
+            if len(desc) > 150:
+                desc = desc[:147] + "..."
+            reply_items.append(
+                f"- **{p['name']}** by {p['brand']}{rating_str} (₹{p['price']}): {desc}"
+            )
         product_reply = (
-            f"Here are some premium Indian alternatives matching your query:\n" + 
+            f"Here are some premium Indian alternatives in **{detected_cat}**:\n" + 
             "\n".join(reply_items)
         )
         reply = brand_reply + product_reply + "\n\n*Tip: Input your OpenAI API key in the sidebar to engage in full AI-powered reasoning, buying guides, and pros/cons analysis!*"

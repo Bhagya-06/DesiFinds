@@ -33,9 +33,11 @@ export default function AIAssistantPage() {
           role: "assistant",
           content: data.response
         };
-        const updated = [...messages, newMsg];
-        setMessages(updated);
-        localStorage.setItem("desifinds_chat_history", JSON.stringify(updated));
+        setMessages((prev) => {
+          const updated = [...prev, newMsg];
+          localStorage.setItem("desifinds_chat_history", JSON.stringify(updated));
+          return updated;
+        });
         
         if (data.retrievedProducts) {
           setRetrievedProducts(data.retrievedProducts);
@@ -64,7 +66,7 @@ export default function AIAssistantPage() {
     sendMessage({
       data: {
         message: inputMessage.trim(),
-        history: messages,
+        history: updatedMessages,
         apiKey: apiKey || undefined
       }
     });
