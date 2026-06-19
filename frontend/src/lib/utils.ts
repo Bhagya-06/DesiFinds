@@ -30,29 +30,31 @@ export function addRecentSearch(query: string): void {
   } catch { /* ignore */ }
 }
 
-export function getWishlist(): string[] {
+export function getWishlist(username?: string): string[] {
   try {
-    const stored = localStorage.getItem("desifinds_wishlist");
+    const userKey = username ? `desifinds_wishlist_${username.toLowerCase().trim()}` : "desifinds_wishlist";
+    const stored = localStorage.getItem(userKey);
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
   }
 }
 
-export function toggleWishlist(productId: string): boolean {
+export function toggleWishlist(productId: string, username?: string): boolean {
   try {
-    const wishlist = getWishlist();
+    const userKey = username ? `desifinds_wishlist_${username.toLowerCase().trim()}` : "desifinds_wishlist";
+    const wishlist = getWishlist(username);
     const idx = wishlist.indexOf(productId);
     const updated = idx >= 0 ? wishlist.filter((id) => id !== productId) : [...wishlist, productId];
-    localStorage.setItem("desifinds_wishlist", JSON.stringify(updated));
+    localStorage.setItem(userKey, JSON.stringify(updated));
     return updated.includes(productId);
   } catch {
     return false;
   }
 }
 
-export function isWishlisted(productId: string): boolean {
-  return getWishlist().includes(productId);
+export function isWishlisted(productId: string, username?: string): boolean {
+  return getWishlist(username).includes(productId);
 }
 
 export function getApiKey(): string {

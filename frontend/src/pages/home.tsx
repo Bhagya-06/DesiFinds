@@ -31,7 +31,7 @@ const BRAND_COMPARISONS = {
     globalBrand: "Away Travel (USA)",
     localBrand: "Mokobara (India)",
     globalPrice: "₹28,000",
-    localPrice: "₹8,500",
+    localPrice: "₹6,490",
     metrics: [
       { name: "Shell Material (German Polycarbonate)", global: 100, local: 100, reason: "Both use identical Covestro Makrolon aerospace-grade Polycarbonate" },
       { name: "Wheel Silentness & Gliding", global: 95, local: 98, reason: "Mokobara uses Japanese Hinomoto-equivalent custom dual-caster wheels" },
@@ -41,7 +41,7 @@ const BRAND_COMPARISONS = {
     trustPoints: [
       "German Makrolon® Polycarbonate shell",
       "Super-silent Hinomoto double-wheels",
-      "30% of the cost (no import duties)"
+      "Only 23% of the cost (no import duties)"
     ],
     verdict: "Mokobara offers identical structural shell and gliding hardware specs at a fraction of the cost, making it the supreme value alternative for frequent flyers."
   },
@@ -50,7 +50,7 @@ const BRAND_COMPARISONS = {
     globalBrand: "Luxury Import Brands (USA/EU)",
     localBrand: "Minimalist / Dot & Key (India)",
     globalPrice: "₹2,500",
-    localPrice: "₹599",
+    localPrice: "₹570",
     metrics: [
       { name: "Sourcing Purity (BASF, DSM)", global: 100, local: 100, reason: "Minimalist sources raw actives from global leaders in Germany & Netherlands" },
       { name: "Toxin & Filler Cleanliness (No Parabens/Sulfates)", global: 75, local: 100, reason: "Indian brands use 100% clean, fragrance-free, sulfate/paraben-free formulas" },
@@ -66,41 +66,41 @@ const BRAND_COMPARISONS = {
     verdict: "Local brands like Minimalist and Dot & Key offer superior formulation safety by eliminating harsh chemical stabilizers and hormone-disrupting filters found in global products, tailoring them for tropical climates."
   },
   watches: {
-    category: "Automatic Horology",
-    globalBrand: "Seiko / Tissot (Japan/Swiss)",
-    localBrand: "Bangalore Watch Company (India)",
-    globalPrice: "₹65,000",
-    localPrice: "₹68,000",
+    category: "Smartwatches",
+    globalBrand: "Apple Watch / Fitbit (USA)",
+    localBrand: "Noise / boAt (India)",
+    globalPrice: "₹34,000",
+    localPrice: "₹2,990",
     metrics: [
-      { name: "Steel Quality (Surgical 316L)", global: 100, local: 100, reason: "Both use marine-grade high-nickel anti-corrosive stainless steel" },
-      { name: "Dial Glass (Sapphire)", global: 95, local: 100, reason: "BWC uses scratch-resistant double-domed sapphire with anti-reflective coating" },
-      { name: "Calibre Movement Reliability", global: 100, local: 95, reason: "Seiko uses in-house calibres; BWC utilizes robust Japanese Miyota / Swiss Sellita" },
-      { name: "Collectibility & Design Theme", global: 90, local: 100, reason: "BWC features hand-finished dials inspired by ISRO, IAF, and Indian history" },
+      { name: "Display Quality (AMOLED Panels)", global: 100, local: 95, reason: "Both utilize high-brightness, crisp, and responsive AMOLED touchscreen glass" },
+      { name: "Health Tracking (Heart Rate/SpO2)", global: 98, local: 90, reason: "Global standards are FDA-cleared; local brands use certified PPG optical sensors" },
+      { name: "Battery Life", global: 40, local: 100, reason: "Apple Watch lasts 18 hours; Noise and boAt run up to 7-10 days on a single charge" },
+      { name: "App Ecosystem", global: 100, local: 50, reason: "Global supports rich third-party apps; local brands focus on proprietary sports tracking" },
     ],
     trustPoints: [
-      "Surgical-grade 316L stainless steel casings",
-      "Scratchproof double-domed Sapphire crystals",
-      "Individually hand-assembled in Bangalore"
+      "Vibrant high-resolution AMOLED displays",
+      "Up to 10 days of continuous battery life",
+      "Certified optical heart-rate and blood-oxygen monitoring"
     ],
-    verdict: "Bangalore Watch Company provides Tissot-level hand-finishing, Japanese automatic precision, and unique national-heritage stories that make them fine heirlooms."
+    verdict: "For health metrics, notification syncing, and screen quality, Indian smartwatches like Noise and boAt offer 90% of the daily utility at less than 10% of the cost."
   },
   shirts: {
     category: "Bespoke & Clean Apparel",
     globalBrand: "Global Fast Fashion (Zara/H&M)",
-    localBrand: "Bombay Shirt Company / Snitch (India)",
+    localBrand: "Snitch / Rare Rabbit (India)",
     globalPrice: "₹4,500",
-    localPrice: "₹1,899",
+    localPrice: "₹3,150",
     metrics: [
       { name: "Natural Fiber Sourcing (Giza/Linen)", global: 40, local: 100, reason: "Indian brands use Egyptian Giza cotton and French linen instead of synthetic polyesters" },
-      { name: "Chemical Dyes Safety (No Azo Dyes)", global: 70, local: 100, reason: "BSC & Snitch use certified non-toxic organic dyes that do not bleed skin-irritants" },
-      { name: "Stitch Density & Seam Strength (18+ SPI)", global: 70, local: 95, reason: "BSC uses tighter stitches per inch ensuring seams do not fray or stretch" },
-      { name: "Fit Customization & Tailoring", global: 30, local: 100, reason: "Custom tailors collar, cuffs, chest, and arms for individual body dimensions" },
+      { name: "Chemical Dyes Safety (No Azo Dyes)", global: 70, local: 100, reason: "Snitch & Rare Rabbit use certified non-toxic organic dyes that do not bleed skin-irritants" },
+      { name: "Stitch Density & Seam Strength (18+ SPI)", global: 70, local: 95, reason: "BSC & Snitch use tighter stitches per inch ensuring seams do not fray or stretch" },
+      { name: "Fit Customization & Tailoring", global: 30, local: 95, reason: "Designed for Indian body fits with structured tailoring and sizing curves" },
     ],
     trustPoints: [
       "100% natural long-staple Egyptian Giza Cotton & French Flax Linen",
       "Eco-certified, non-toxic organic dyes (No Azo Dyes or Formaldehyde)",
       "High Stitches Per Inch (18+ SPI) construction for durability",
-      "Handcrafted tailors ensuring fair artisanal local wages"
+      "Tailored sizing profiles optimized for the Indian build"
     ],
     verdict: "Indian slow-fashion brands stand in stark contrast to global fast fashion imports by eliminating plastic polyester fabrics and chemical dyes in favor of high-breathability Giza cotton and custom tailored fits."
   }

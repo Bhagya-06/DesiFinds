@@ -107,9 +107,9 @@ class ProductRetriever:
                     score += 8
                     
             # Quality signals (rating + review count)
-            score += min(15, p["rating"] * 2.5)
+            score += min(15, (p.get("rating") or 0.0) * 2.5)
             import math
-            score += min(10, math.log10(p["reviewCount"] + 1) * 3)
+            score += min(10, math.log10((p.get("reviewCount") or 0) + 1) * 3)
             
             # Badges
             if "Made in India" in p["badges"]:

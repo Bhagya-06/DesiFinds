@@ -47,8 +47,8 @@ class ProductVectorStore:
                 "id": p["id"],
                 "brand": p["brand"],
                 "category": p["category"],
-                "price": float(p["price"]),
-                "rating": float(p["rating"]),
+                "price": float(p.get("price") or 0.0),
+                "rating": float(p.get("rating") or 0.0),
                 "product_json": json.dumps(p)
             })
             

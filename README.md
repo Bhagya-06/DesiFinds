@@ -6,23 +6,23 @@ DesiFinds is a premium, startup-style AI-powered Indian product discovery platfo
 
 ## 🌟 Key Features
 
-1. **Enterprise RAG System**: Leverages a localized **ChromaDB** vector store and dynamic **OpenAI Embeddings** to perform semantic search queries over a curated database of 5,000+ real products across 14 categories.
-2. **LangGraph Workflow Orchestration**: Implements a multi-agent orchestration state machine matching the following pipeline:
-   - **Product Deconstructor**: Parses international search queries to extract category, features, materials, and styles.
+1. **Enterprise RAG System**: Leverages a localized **ChromaDB** vector store and dynamic **OpenAI Embeddings** to perform semantic search queries over a curated database of **3,151+ real products** across 14 categories.
+2. **Dynamic Contextual Badges**: Auto-extracts product quality and feature labels (e.g., *Eco-Friendly, Handcrafted, Premium Quality, Comfortable, Skin Friendly*) directly from live descriptions, tags, materials, and reviews.
+3. **User Authentication & Scoped Wishlists**: Includes a client-side login/signup system that persists sessions locally and stores wishlists on a per-user basis. Wishlisting is gated; anonymous users are guided to log in.
+4. **LangGraph Workflow Orchestration**: Implements a multi-agent orchestration state machine:
+   - **Product Deconstructor**: Parses queries to extract category, features, materials, and styles.
    - **RAG Matcher**: Queries ChromaDB for top alternatives using vector similarity.
    - **Review Analyzer**: Evaluates alternatives' review logs to fetch Pros and Cons.
    - **Quality Curator**: Assigns match scores (50%–99%) and value propositions.
    - **Formatter**: Packs the final discovery state into standard JSON.
-3. **AI Chatbot Shopping Assistant**: An interactive RAG chatbot allowing comparisons, recommendations, and buying advice with sustained context history.
-4. **Data Scrapers**: Built-in BeautifulSoup scraper targeting landing pages, microdata (Shopify JSON-LD schemas), and OpenGraph tags to dynamically ingest new products.
-5. **Local Wishlist**: Local storage integration saving user favorites without database dependencies.
-6. **Robust Fallbacks**: A rule-based heuristic system allows the application to remain functional even when no OpenAI API key is supplied.
+5. **AI Chatbot Shopping Assistant**: An interactive RAG chatbot allowing comparisons, recommendations, and buying advice with sustained context history.
+6. **Data Scrapers**: Built-in BeautifulSoup and Shopify product scraper (`master_pipeline.py`) that extracts live, real product data directly from brand feeds.
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: React + Vite (TypeScript), Axios, wouter, TanStack React Query, Tailwind CSS v4, Lucide Icons, Framer Motion
+- **Frontend**: React + Vite (TypeScript), Axios, wouter, TanStack React Query, Tailwind CSS, Lucide Icons, Framer Motion
 - **Backend**: FastAPI (Python 3.12), Uvicorn, Pydantic
 - **AI / RAG**: LangGraph, LangChain, OpenAI API, ChromaDB
 - **Data Collection**: BeautifulSoup, Requests
@@ -45,22 +45,27 @@ DesiFinds is a premium, startup-style AI-powered Indian product discovery platfo
 │   │   └── retriever.py       # Retrieval logic (semantic search + keyword fallback)
 │   ├── scrapers/
 │   │   ├── products/          # BeautifulSoup Shopify product details scraper
-│   │   └── brands/            # Local brand info lookup repository
+│   │   ├── brands/            # Local brand info lookup repository
+│   │   ├── master_pipeline.py # Scraping execution pipeline (with dynamic badges & enrichment)
+│   │   └── enrich_existing.py # Dataset data enricher (rating, reviews, price, badges)
 │   ├── Dockerfile             # Production container definition
 │   ├── requirements.txt       # Python dependencies
 │   └── main.py                # FastAPI server entrypoint
 ├── frontend/                  # React + Vite frontend source code
 │   ├── src/
+│   │   ├── context/
+│   │   │   └── AuthContext.tsx # User login, registration, and session manager
+│   │   ├── components/
+│   │   │   ├── AuthModal.tsx   # Login/Signup dialog box
+│   │   │   └── Navbar.tsx      # Header navbar showing user profile dropdown
 │   │   ├── pages/
-│   │   │   └── ai-assistant.tsx # AI Chatbot page
-│   │   │   └── workflow.tsx     # Discovery workflow visualization page
+│   │   │   └── wishlist.tsx    # User-scoped wishlist products grid
+│   │   │   └── explore.tsx     # Indian products directory
+│   │   │   └── ...
 │   │   └── ...
-│   └── vercel.json            # Vercel deployment configuration
 ├── data/
-│   ├── products.json          # 5,000+ item catalog
+│   ├── products.json          # 3,151+ item live scraped catalog
 │   └── chromadb/              # (Git-ignored) ChromaDB persistent vectors
-├── render.yaml                # Render Blueprint file for one-click backend deployment
-├── vercel.json                # Root Vercel deployment configuration
 ├── start.bat                  # Quick-start local run script (Windows)
 ├── .env.example               # Template for environment configuration
 └── pnpm-workspace.yaml        # Workspace configuration
@@ -71,25 +76,20 @@ DesiFinds is a premium, startup-style AI-powered Indian product discovery platfo
 ## 💻 Local Setup & Execution
 
 ### 1. Prerequisites
-Ensure you have **Node.js (v18+)** and **Python (3.11 or 3.12)** installed on your machine.
+Ensure you have **Node.js (v18+)** and **Python (3.11 or 3.12)** installed.
 
 ### 2. Dependency Installation
 
-Open your terminal and run the following commands:
-
 ```bash
-# 1. Install monorepo Node dependencies
+# 1. Install Node workspace dependencies
 pnpm install --ignore-scripts
 
 # 2. Setup Python Virtual Environment
 cd backend
 python -m venv .venv
 
-# 3. Activate Virtual Environment
-# On Windows (PowerShell):
+# 3. Activate Virtual Environment (Windows PowerShell)
 .venv\Scripts\Activate.ps1
-# On macOS / Linux:
-source .venv/bin/activate
 
 # 4. Install backend dependencies
 pip install -r requirements.txt
@@ -98,77 +98,36 @@ cd ..
 
 ### 3. Run the App
 
-- **Windows**: Double-click the [start.bat](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/start.bat) script in the root directory. It will spawn:
-  - The FastAPI Backend on `http://localhost:8080`
-  - The React Frontend on `http://localhost:19993`
-  
-- **macOS / Linux / Manual execution**:
+- **Windows Quick Start**: Double-click [start.bat](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/start.bat) to launch the FastAPI backend (port `8080`) and Vite React frontend (port `19993`).
+- **Manual Launch**:
   ```bash
-  # In terminal 1 (Backend):
+  # Start Backend (Terminal 1)
   cd backend
-  source .venv/bin/activate
-  python -m uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+  .venv\Scripts\activate
+  python -m uvicorn main:app --host 0.0.0.0 --port 8080
 
-  # In terminal 2 (Frontend):
+  # Start Frontend (Terminal 2)
   cd frontend
-  export PORT=19993
-  export BASE_PATH=/
+  $env:PORT="19993"
+  $env:BASE_PATH="/"
   pnpm run dev
   ```
 
 ---
 
-## 🚀 Cloud Deployment Guide
+## 🚀 Scrapers & Data Seeding
 
-To deploy the application to production, you will publish the code in a single **GitHub repository**, deploying the **Backend to Render/Railway** and hosting the **Frontend on Vercel**.
+### 1. Live Web Scraping
+To refresh the database with new live products directly from brand catalogs, run the scraping pipeline:
+```bash
+cd backend
+.venv\Scripts\activate
+python -u -m backend.scrapers.master_pipeline --limit 200 --skip-validation
+```
 
-> [!NOTE]
-> All application components are built under a monorepo. You should push the **entire directory structure** to your GitHub repository. Both Vercel and Render will pull from this repository and target their respective directories.
-
-### 1. Deploying the Backend (via GitHub to Render)
-
-The backend is fully containerized and configured with a [Dockerfile](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/backend/Dockerfile) and a [render.yaml](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/render.yaml) blueprint.
-
-#### Method A: Using Render Blueprints (Recommended)
-1. Push the project to GitHub.
-2. In the **Render Dashboard**, click **New** -> **Blueprint**.
-3. Connect your GitHub repository.
-4. Render will automatically detect the [render.yaml](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/render.yaml) file, create the `desifinds-backend` service, and configure its resources.
-5. In the Render UI, supply your `OPENAI_API_KEY` when prompted.
-
-#### Method B: Manual Web Service Setup
-1. Create a new **Web Service** on Render or Railway and link your GitHub repository.
-2. Configure settings:
-   - **Runtime**: `Docker`
-   - **Docker Context**: `backend`
-   - **Dockerfile Path**: `backend/Dockerfile`
-3. Expose port `8080`.
-4. Add the following **Environment Variables**:
-   - `PORT`: `8080`
-   - `OPENAI_API_KEY`: (Your OpenAI secret key)
-
----
-
-### 2. Deploying the Frontend (to Vercel)
-
-Since the frontend resides in a `pnpm` workspace monorepo, Vercel must compile the assets while resolving local workspace dependencies like `lib/api-client-react`.
-
-1. Create a new project in **Vercel** and connect your GitHub repository.
-2. In the Vercel project configuration, set:
-   - **Framework Preset**: `Vite`
-   - **Root Directory**: `.` (Keep as workspace root to allow dependency resolution)
-   - **Build Command**: `pnpm --filter @workspace/desifinds build`
-   - **Output Directory**: `frontend/dist`
-   - **Environment Variables**:
-     - `PORT`: `19993`
-     - `BASE_PATH`: `/`
-3. Under the project settings, make sure **Include files outside of the Root Directory in the Build Step** is enabled (enabled by default for monorepos).
-
-#### CORS Bypass (API Proxying)
-We have pre-configured [vercel.json](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/vercel.json) in both the workspace root and the `frontend/` folder.
-
-> [!IMPORTANT]
-> Once your backend is running on Render/Railway, open [vercel.json](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/vercel.json) and replace the default URL:
-> `"destination": "https://your-desi-finds-backend.onrender.com/api/:path*"`
-> with your **live deployed backend URL**.
-> This routes all frontend requests matching `/api/*` directly to your production API, bypassing CORS issues without setting broad origin headers.
+### 2. Seeding Mock Catalog
+For testing purposes, you can generate 3,000 synthetic products using the seeder script:
+```bash
+pnpm --filter @workspace/scripts exec tsx ./src/seed-products.ts
+```
+*(After seeding mock data, run `python -m backend.scrapers.enrich_existing` to fill in rating and price fields).*

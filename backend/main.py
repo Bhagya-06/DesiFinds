@@ -320,7 +320,7 @@ def list_products(
     if maxPrice is not None:
         filtered = [p for p in filtered if p["price"] <= maxPrice]
     if minRating is not None:
-        filtered = [p for p in filtered if p["rating"] >= minRating]
+        filtered = [p for p in filtered if p["rating"] is not None and p["rating"] >= minRating]
     if q:
         q_lower = q.lower()
         filtered = [
@@ -385,7 +385,7 @@ def list_brands():
 @app.get("/trending")
 def get_trending():
     # Top rated products
-    top = sorted(products_cache, key=lambda x: x["rating"] * (x["reviewCount"] + 1), reverse=True)[:12]
+    top = sorted(products_cache, key=lambda x: (x.get("rating") or 0.0) * ((x.get("reviewCount") or 0) + 1), reverse=True)[:12]
     # New arrivals (px identifiers)
     new = [p for p in products_cache if p["id"].startswith("px")][:8]
     if not new:

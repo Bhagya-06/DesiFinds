@@ -10,6 +10,9 @@ import WorkflowPage from "@/pages/workflow";
 import ProductPage from "@/pages/product";
 import ExplorePage from "@/pages/explore";
 import AIAssistantPage from "@/pages/ai-assistant";
+import WishlistPage from "@/pages/wishlist";
+import { AuthProvider } from "@/context/AuthContext";
+import AuthModal from "@/components/AuthModal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +32,7 @@ function Router() {
       <Route path="/workflow" component={WorkflowPage} />
       <Route path="/product/:id" component={ProductPage} />
       <Route path="/chat" component={AIAssistantPage} />
+      <Route path="/wishlist" component={WishlistPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -38,12 +42,15 @@ function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Router />
+            </WouterRouter>
+            <Toaster />
+            <AuthModal />
+          </TooltipProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

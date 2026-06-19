@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Heart, Star, ExternalLink, TrendingUp } from "lucide-react";
 import { cn, formatPrice, toggleWishlist, isWishlisted } from "@/lib/utils";
 import type { Product } from "@workspace/api-client-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface ProductCardProps {
   product: Product;
@@ -25,12 +26,21 @@ const BADGE_STYLES: Record<string, string> = {
 
 export default function ProductCard({ product, matchScore, matchReason, valueProp, priceSavings, index = 0 }: ProductCardProps) {
   const [, navigate] = useLocation();
-  const [wishlisted, setWishlisted] = useState(() => isWishlisted(product.id));
+  const { currentUser, setAuthModalOpen } = useAuth();
+  const [wishlisted, setWishlisted] = useState(false);
   const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setWishlisted(isWishlisted(product.id, currentUser?.username));
+  }, [product.id, currentUser]);
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const result = toggleWishlist(product.id);
+    if (!currentUser) {
+      setAuthModalOpen(true);
+      return;
+    }
+    const result = toggleWishlist(product.id, currentUser.username);
     setWishlisted(result);
   };
 
@@ -105,12 +115,12 @@ export default function ProductCard({ product, matchScore, matchReason, valuePro
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                className={cn("w-3 h-3", i < Math.floor(product.rating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30")}
+                className={cn("w-3 h-3", i < Math.floor(product.rating || 0) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30")}
               />
             ))}
           </div>
-          <span className="text-xs font-medium text-foreground">{product.rating}</span>
-          <span className="text-xs text-muted-foreground">({product.reviewCount.toLocaleString("en-IN")})</span>
+          <span className="text-xs font-medium text-foreground">{(product.rating || 0).toFixed(1)}</span>
+          <span className="text-xs text-muted-foreground">({(product.reviewCount || 0).toLocaleString("en-IN")})</span>
         </div>
 
         {/* Badges */}

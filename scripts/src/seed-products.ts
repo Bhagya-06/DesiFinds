@@ -1095,7 +1095,7 @@ for (const category of categories) {
 
     for (const brand of targetBrands) {
       for (const suffix of template.nameSuffixes) {
-        for (const colorVariant of pickN(colorVariants, 4)) {
+        for (const colorVariant of pickN(colorVariants, 5)) {
           const productName = `${template.namePrefix} ${suffix}`;
           const fullName = `${productName} — ${colorVariant.color}`;
           const price = Math.round(template.basePrice + randomBetween(-200, template.priceVariance));
@@ -1127,19 +1127,19 @@ for (const category of categories) {
             badges: pickN(template.badges, Math.min(template.badges.length, 3)),
           });
 
-          if (products.length >= 5000) break;
+          if (products.length >= 3000) break;
         }
-        if (products.length >= 5000) break;
+        if (products.length >= 3000) break;
       }
-      if (products.length >= 5000) break;
+      if (products.length >= 3000) break;
     }
-    if (products.length >= 5000) break;
+    if (products.length >= 3000) break;
   }
-  if (products.length >= 5000) break;
+  if (products.length >= 3000) break;
 }
 
-// Ensure exactly 5000 (or close to it)
-const finalProducts = products.slice(0, 5000);
+// Ensure exactly 3000 (or close to it)
+const finalProducts = products.slice(0, 3000);
 
 fs.writeFileSync(outputPath, JSON.stringify(finalProducts, null, 2));
 
