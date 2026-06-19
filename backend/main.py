@@ -4,6 +4,10 @@ from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, HTTPException, Body, Query, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from dotenv import load_dotenv
+
+# Load environment variables on startup
+load_dotenv()
 
 from backend.ai.vector_store import ProductVectorStore
 from backend.ai.graph import run_product_discovery
@@ -46,6 +50,7 @@ def load_products():
 @app.on_event("startup")
 def startup_event():
     load_products()
+    configure_langsmith()
 
 # Global instances
 vector_store = ProductVectorStore()

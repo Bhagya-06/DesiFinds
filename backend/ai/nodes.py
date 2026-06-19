@@ -6,6 +6,7 @@ from openai import OpenAI
 from backend.ai.state import DiscoveryState
 from backend.rag.retriever import ProductRetriever
 from backend.ai.vector_store import ProductVectorStore
+from langsmith import traceable
 
 # Fallback keyword definitions for rule-based matching
 CATEGORY_KEYWORDS = {
@@ -25,6 +26,7 @@ CATEGORY_KEYWORDS = {
     "Eyewear": ["sunglasses", "spectacles", "glasses", "frames", "lens", "optical"]
 }
 
+@traceable
 def deconstructor_node(state: DiscoveryState) -> Dict[str, Any]:
     """
     Extract category, features, materials, style, price range and original brand.
@@ -116,6 +118,7 @@ def deconstructor_node(state: DiscoveryState) -> Dict[str, Any]:
         }]
     }
 
+@traceable
 def retriever_node(state: DiscoveryState) -> Dict[str, Any]:
     """
     Search product databases to fetch top matching alternatives.
@@ -146,6 +149,7 @@ def retriever_node(state: DiscoveryState) -> Dict[str, Any]:
         }]
     }
 
+@traceable
 def reviewer_node(state: DiscoveryState) -> Dict[str, Any]:
     """
     Analyze customer reviews or summaries to compile structured pros and cons.
@@ -216,6 +220,7 @@ def reviewer_node(state: DiscoveryState) -> Dict[str, Any]:
         }]
     }
 
+@traceable
 def curator_node(state: DiscoveryState) -> Dict[str, Any]:
     """
     Formulate match scores, craftsmanship explanations, and price savings comparisons.
@@ -297,6 +302,7 @@ def curator_node(state: DiscoveryState) -> Dict[str, Any]:
         }]
     }
 
+@traceable
 def formatter_node(state: DiscoveryState) -> Dict[str, Any]:
     """
     Format output into frontend-ready JSON.
