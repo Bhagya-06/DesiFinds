@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://your-desi-finds-backend.onrender.com/api/:path*"
+      "destination": "https://bhagyab06-desifinds-api.hf.space/api/:path*"
     },
     {
       "source": "/(.*)",
