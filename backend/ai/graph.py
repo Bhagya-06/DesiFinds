@@ -7,7 +7,9 @@ from backend.ai.nodes import (
     curator_node,
     formatter_node
 )
+from langsmith import traceable
 
+@traceable
 def build_workflow_graph() -> StateGraph:
     # Initialize state graph with our State TypedDict
     workflow = StateGraph(DiscoveryState)
@@ -32,6 +34,7 @@ def build_workflow_graph() -> StateGraph:
 # Compile the graph
 compiled_graph = build_workflow_graph()
 
+@traceable
 def run_product_discovery(query: str, api_key: str = None) -> dict:
     """
     Run the compiled discovery graph for a given user query.
