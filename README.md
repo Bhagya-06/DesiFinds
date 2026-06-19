@@ -1,6 +1,6 @@
 ---
 title: DesiFinds API
-emoji: 🇮🇳
+emoji: 🛍️
 colorFrom: indigo
 colorTo: red
 sdk: docker
