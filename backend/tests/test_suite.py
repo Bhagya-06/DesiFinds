@@ -323,5 +323,26 @@ class DesiFindsTestSuite(unittest.TestCase):
         self.assertIn("cerave", eq_lower)
         self.assertIn("skincare moisturizer face cream", eq_lower)
 
+    def test_26_chat_scope_validation(self):
+        """Test that out-of-scope queries and greetings are handled correctly by the chat endpoint."""
+        # 1. Out-of-scope query test
+        payload_out = {"message": "What is the capital of Japan?"}
+        r_out = requests.post(f"{BACKEND_URL}/api/chat", json=payload_out)
+        self.assertEqual(r_out.status_code, 200)
+        data_out = r_out.json()
+        self.assertIn("response", data_out)
+        self.assertIn("retrievedProducts", data_out)
+        self.assertEqual(len(data_out["retrievedProducts"]), 0)
+        self.assertIn("only assist you with queries related to premium Indian alternatives", data_out["response"])
+        
+        # 2. Greeting query test
+        payload_greet = {"message": "hello!"}
+        r_greet = requests.post(f"{BACKEND_URL}/api/chat", json=payload_greet)
+        self.assertEqual(r_greet.status_code, 200)
+        data_greet = r_greet.json()
+        self.assertIn("response", data_greet)
+        self.assertIn("retrievedProducts", data_greet)
+        self.assertEqual(len(data_greet["retrievedProducts"]), 0)
+
 if __name__ == "__main__":
     unittest.main()

@@ -34,7 +34,69 @@ def deconstructor_node(state: DiscoveryState) -> Dict[str, Any]:
     query = state["query"]
     api_key = state.get("api_key")
     
-    # 1. AI execution path
+    # 1. Greetings check
+    message_lower = query.lower().strip("?.! ")
+    greetings = {"hi", "hello", "hey", "namaste", "hola", "greetings", "good morning", "good afternoon", "good evening"}
+    is_greeting = message_lower in greetings or any(message_lower.startswith(g) for g in ["hi ", "hello ", "hey "])
+    
+    # 2. Out-of-scope heuristic check
+    out_of_scope_patterns = [
+        r"\b(capital of|population of|distance between|weather in|time in|president of|prime minister of)\b",
+        r"\b(write a (code|program|script|function|class)|how to code|javascript|python|java|c\+\+|html|css)\b",
+        r"\b(calculate|integral|derivative|equation|solve for|sqrt|divided by|plus|minus|multiplied by)\b",
+        r"\b(tell me a joke|sing a song|recipe for|how to cook|news about|stock price of)\b",
+        r"\b(tell me about japan|tokyo|history of world war|how many planets|speed of light|gravity)\b"
+    ]
+    is_out_of_scope_heuristic = False
+    for pattern in out_of_scope_patterns:
+        if re.search(pattern, message_lower):
+            is_out_of_scope_heuristic = True
+            break
+            
+    is_out_of_scope = False
+    if api_key:
+        try:
+            client = OpenAI(api_key=api_key)
+            classification_prompt = (
+                "You are a classification assistant for DesiFinds (a shopping platform for premium Indian alternatives to global products).\n"
+                "Determine if the following user query is OUT-OF-SCOPE.\n"
+                "Out-of-scope queries include: general knowledge questions (e.g. 'what is the capital of Japan'), coding requests, mathematics, non-shopping and non-brand recipes, news, or general unrelated queries.\n"
+                "In-scope queries include: product search/alternatives, brand inquiries (origins, founders, story), shopping advice, and general greetings (e.g. 'hi', 'hello').\n\n"
+                f"User Query: \"{query}\"\n\n"
+                "Respond strictly with either 'IN_SCOPE' or 'OUT_SCOPE'. Do not include any other text."
+            )
+            resp = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": classification_prompt}],
+                max_tokens=5,
+                temperature=0.0
+            )
+            result_text = resp.choices[0].message.content.strip().upper()
+            is_out_of_scope = "OUT_SCOPE" in result_text
+        except Exception as e:
+            print(f"Scope classification error in graph: {e}")
+            is_out_of_scope = is_out_of_scope_heuristic
+    else:
+        is_out_of_scope = is_out_of_scope_heuristic
+
+    if is_out_of_scope or is_greeting:
+        reason = "Query classified as out-of-scope." if is_out_of_scope else "Greeting detected."
+        return {
+            "category": "Out of Scope",
+            "features": [],
+            "materials": [],
+            "price_range": "N/A",
+            "aesthetic_style": "N/A",
+            "original_brand": "N/A",
+            "out_of_scope": True,
+            "workflow_steps": [{
+                "name": "Product Deconstructor",
+                "status": "complete",
+                "output": f"{reason} Aborting RAG retrieval."
+            }]
+        }
+
+    # 3. AI execution path
     if api_key:
         try:
             client = OpenAI(api_key=api_key)
@@ -123,6 +185,16 @@ def retriever_node(state: DiscoveryState) -> Dict[str, Any]:
     """
     Search product databases to fetch top matching alternatives.
     """
+    if state.get("out_of_scope"):
+        return {
+            "matches": [],
+            "workflow_steps": state["workflow_steps"] + [{
+                "name": "RAG Matcher",
+                "status": "skipped",
+                "output": "Skipped retriever: query is out-of-scope."
+            }]
+        }
+
     vs = ProductVectorStore()
     retriever = ProductRetriever(vs)
     
@@ -154,6 +226,16 @@ def reviewer_node(state: DiscoveryState) -> Dict[str, Any]:
     """
     Analyze customer reviews or summaries to compile structured pros and cons.
     """
+    if state.get("out_of_scope"):
+        return {
+            "reviews_analysis": {},
+            "workflow_steps": state["workflow_steps"] + [{
+                "name": "Review Analyzer",
+                "status": "skipped",
+                "output": "Skipped review analysis: query is out-of-scope."
+            }]
+        }
+
     matches = state["matches"]
     api_key = state.get("api_key")
     reviews_analysis = {}
@@ -225,6 +307,16 @@ def curator_node(state: DiscoveryState) -> Dict[str, Any]:
     """
     Formulate match scores, craftsmanship explanations, and price savings comparisons.
     """
+    if state.get("out_of_scope"):
+        return {
+            "curation": {},
+            "workflow_steps": state["workflow_steps"] + [{
+                "name": "Quality Curator",
+                "status": "skipped",
+                "output": "Skipped curation: query is out-of-scope."
+            }]
+        }
+
     matches = state["matches"]
     query = state["query"]
     api_key = state.get("api_key")
@@ -307,6 +399,31 @@ def formatter_node(state: DiscoveryState) -> Dict[str, Any]:
     """
     Format output into frontend-ready JSON.
     """
+    if state.get("out_of_scope"):
+        analysis = {
+            "category": "Out of Scope",
+            "features": [],
+            "materials": [],
+            "priceRange": "N/A",
+            "aestheticStyle": "N/A",
+            "originalBrand": "N/A"
+        }
+        workflow = state["workflow_steps"] + [{
+            "name": "Formatter",
+            "status": "complete",
+            "output": "Assembled final out-of-scope response."
+        }]
+        return {
+            "formatted_output": {
+                "query": state["query"],
+                "analysis": analysis,
+                "matches": [],
+                "workflow": workflow,
+                "aiPowered": bool(state.get("api_key")),
+                "outOfScope": True
+            }
+        }
+
     matches = state["matches"]
     reviews_analysis = state["reviews_analysis"]
     curation = state["curation"]

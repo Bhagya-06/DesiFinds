@@ -27,3 +27,6 @@ class DiscoveryState(TypedDict):
     
     # Execution tracing logs for UI
     workflow_steps: List[Dict[str, Any]] # list of {name: str, status: str, output: str}
+    
+    # Scope classification flag
+    out_of_scope: Optional[bool]

@@ -173,6 +173,62 @@ def chat_assistant(payload: ChatInput):
     # Append user message to global store
     chat_history_store.append({"role": "user", "content": message})
     
+    # 1. Greetings check
+    message_lower = message.lower().strip("?.! ")
+    greetings = {"hi", "hello", "hey", "namaste", "hola", "greetings", "good morning", "good afternoon", "good evening"}
+    is_greeting = message_lower in greetings or any(message_lower.startswith(g) for g in ["hi ", "hello ", "hey "])
+    
+    # 2. Out-of-scope heuristic check
+    import re
+    out_of_scope_patterns = [
+        r"\b(capital of|population of|distance between|weather in|time in|president of|prime minister of)\b",
+        r"\b(write a (code|program|script|function|class)|how to code|javascript|python|java|c\+\+|html|css)\b",
+        r"\b(calculate|integral|derivative|equation|solve for|sqrt|divided by|plus|minus|multiplied by)\b",
+        r"\b(tell me a joke|sing a song|recipe for|how to cook|news about|stock price of)\b",
+        r"\b(tell me about japan|tokyo|history of world war|how many planets|speed of light|gravity)\b"
+    ]
+    is_out_of_scope_heuristic = False
+    for pattern in out_of_scope_patterns:
+        if re.search(pattern, message_lower):
+            is_out_of_scope_heuristic = True
+            break
+            
+    is_out_of_scope = False
+    if api_key:
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=api_key)
+            classification_prompt = (
+                "You are a classification assistant for DesiFinds (a shopping platform for premium Indian alternatives to global products).\n"
+                "Determine if the following user query is OUT-OF-SCOPE.\n"
+                "Out-of-scope queries include: general knowledge questions (e.g. 'what is the capital of Japan'), coding requests, mathematics, non-shopping and non-brand recipes, news, or general unrelated queries.\n"
+                "In-scope queries include: product search/alternatives, brand inquiries (origins, founders, story), shopping advice, and general greetings (e.g. 'hi', 'hello').\n\n"
+                f"User Query: \"{message}\"\n\n"
+                "Respond strictly with either 'IN_SCOPE' or 'OUT_SCOPE'. Do not include any other text."
+            )
+            resp = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": classification_prompt}],
+                max_tokens=5,
+                temperature=0.0
+            )
+            result_text = resp.choices[0].message.content.strip().upper()
+            is_out_of_scope = "OUT_SCOPE" in result_text
+        except Exception as e:
+            print(f"Scope classification error: {e}")
+            is_out_of_scope = is_out_of_scope_heuristic
+    else:
+        is_out_of_scope = is_out_of_scope_heuristic
+
+    if is_out_of_scope:
+        refusal = "I am sorry, but I can only assist you with queries related to premium Indian alternatives, brands, shopping, or product details. Please let me know if you would like recommendations for local alternatives!"
+        chat_history_store.append({"role": "assistant", "content": refusal})
+        return {
+            "response": refusal,
+            "history": chat_history_store,
+            "retrievedProducts": []
+        }
+        
     retrieved_products = []
     
     # Check if any brand is mentioned in the query
@@ -196,15 +252,18 @@ def chat_assistant(payload: ChatInput):
             from openai import OpenAI
             client = OpenAI(api_key=api_key)
             
-            # Step A: Hybrid retrieval from vector store + keyword matching
-            retrieved_products = retriever.retrieve_alternatives(
-                query=message,
-                category=detected_cat,
-                features=[],
-                materials=[],
-                api_key=api_key,
-                n_results=3
-            )
+            if is_greeting:
+                retrieved_products = []
+            else:
+                # Step A: Hybrid retrieval from vector store + keyword matching
+                retrieved_products = retriever.retrieve_alternatives(
+                    query=message,
+                    category=detected_cat,
+                    features=[],
+                    materials=[],
+                    api_key=api_key,
+                    n_results=3
+                )
                 
             # Construct context from products
             context_blocks = []
@@ -302,7 +361,7 @@ def chat_assistant(payload: ChatInput):
         brand_reply = "\n\n".join(replies) + "\n\n"
 
     # Smart fallback matching using retriever
-    if is_search_query:
+    if is_search_query and not is_greeting:
         retrieved_products = retriever.retrieve_alternatives(
             query=message,
             category=detected_cat,
