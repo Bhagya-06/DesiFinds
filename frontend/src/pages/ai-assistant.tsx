@@ -9,6 +9,146 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { getApiKey, setApiKey } from "@/lib/utils";
 
+function MarkdownRenderer({ text }: { text: string }) {
+  const lines = text.split("\n");
+  const blocks: React.ReactNode[] = [];
+  
+  let currentTable: string[][] = [];
+  let inTable = false;
+  
+  let currentList: string[] = [];
+  let inList = false;
+
+  const parseBoldAndItalic = (t: string): React.ReactNode[] => {
+    const regex = /(\*\*.*?\*\*|\*.*?\*)/g;
+    const parts = t.split(regex);
+    return parts.map((part, idx) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={idx} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
+      } else if (part.startsWith("*") && part.endsWith("*")) {
+        return <em key={idx} className="italic text-muted-foreground">{part.slice(1, -1)}</em>;
+      }
+      return part;
+    });
+  };
+
+  const parseLinks = (t: string): React.ReactNode[] => {
+    const linkRegex = /(\[.*?\]\(.*?\))/g;
+    const parts = t.split(linkRegex);
+    return parts.flatMap((part, idx) => {
+      if (part.startsWith("[") && part.includes("](")) {
+        const closeBracket = part.indexOf("]");
+        const label = part.slice(1, closeBracket);
+        const url = part.slice(closeBracket + 2, -1);
+        return [
+          <a 
+            key={`link-${idx}`} 
+            href={url} 
+            target={url.startsWith("http") ? "_blank" : undefined} 
+            rel="noopener noreferrer"
+            className="text-primary hover:underline font-medium"
+          >
+            {label}
+          </a>
+        ];
+      }
+      return parseBoldAndItalic(part);
+    });
+  };
+
+  const renderInline = (str: string) => {
+    return parseLinks(str);
+  };
+
+  const flushTable = (key: string | number) => {
+    if (currentTable.length === 0) return;
+    
+    const separatorRowIndex = currentTable.findIndex(row => row.every(cell => /^:?-+:?$/.test(cell)));
+    let header = currentTable[0];
+    let rows = currentTable.slice(1);
+    if (separatorRowIndex !== -1) {
+      header = currentTable.slice(0, separatorRowIndex)[0] || currentTable[0];
+      rows = currentTable.slice(separatorRowIndex + 1);
+    }
+
+    blocks.push(
+      <div key={`table-${key}`} className="overflow-x-auto my-3 border border-border rounded-xl shadow-xs bg-card/60 backdrop-blur-xs">
+        <table className="min-w-full divide-y divide-border text-xs text-left table-auto">
+          <thead className="bg-muted/80 text-muted-foreground font-semibold">
+            <tr>
+              {header.map((col, idx) => (
+                <th key={idx} className="px-4 py-3 border-r border-border last:border-r-0 text-[11px] uppercase tracking-wider">
+                  {renderInline(col)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border bg-card">
+            {rows.map((row, rIdx) => (
+              <tr key={rIdx} className="hover:bg-muted/30 transition-colors">
+                {row.map((cell, cIdx) => (
+                  <td key={cIdx} className="px-4 py-3 border-r border-border last:border-r-0 max-w-[250px] break-words text-foreground align-top">
+                    {renderInline(cell)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+    currentTable = [];
+    inTable = false;
+  };
+
+  const flushList = (key: string | number) => {
+    if (currentList.length === 0) return;
+    blocks.push(
+      <ul key={`list-${key}`} className="list-disc pl-5 my-2 space-y-1">
+        {currentList.map((item, idx) => (
+          <li key={idx} className="text-sm text-foreground">{renderInline(item)}</li>
+        ))}
+      </ul>
+    );
+    currentList = [];
+    inList = false;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    if (line.startsWith("|") && line.endsWith("|")) {
+      if (inList) flushList(i);
+      inTable = true;
+      const cells = line.split("|").map(c => c.trim()).slice(1, -1);
+      currentTable.push(cells);
+    } 
+    else if (line.startsWith("- ") || line.startsWith("* ")) {
+      if (inTable) flushTable(i);
+      inList = true;
+      currentList.push(line.substring(2));
+    } 
+    else {
+      if (inTable) flushTable(i);
+      if (inList) flushList(i);
+      if (line) {
+        blocks.push(
+          <p key={i} className="mt-2 first:mt-0 text-sm text-foreground">
+            {renderInline(line)}
+          </p>
+        );
+      } else {
+        blocks.push(<div key={i} className="h-2" />);
+      }
+    }
+  }
+
+  if (inTable) flushTable("end");
+  if (inList) flushList("end");
+
+  return <div className="space-y-1">{blocks}</div>;
+}
+
 export default function AIAssistantPage() {
   const [, navigate] = useLocation();
   const [inputMessage, setInputMessage] = useState("");
@@ -178,11 +318,7 @@ export default function AIAssistantPage() {
                       : "bg-muted text-foreground border-border"
                   }`}
                 >
-                  {msg.content.split("\n").map((line, idx) => (
-                    <p key={idx} className={idx > 0 ? "mt-2" : ""}>
-                      {line}
-                    </p>
-                  ))}
+                  <MarkdownRenderer text={msg.content} />
                 </div>
               </div>
             ))}
