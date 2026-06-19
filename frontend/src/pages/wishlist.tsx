@@ -33,7 +33,7 @@ export default function WishlistPage() {
   // Fetch products (limit=3500 is extremely fast since the backend caches them in memory)
   const { data, isLoading } = useListProducts(
     { limit: 3500 },
-    { enabled: !!currentUser }
+    { query: { enabled: !!currentUser } as any }
   );
 
   const wishlistProducts = data?.products.filter((p) => wishlistIds.includes(p.id)) || [];

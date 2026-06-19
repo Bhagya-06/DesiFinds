@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown, CheckCircle2, Circle, Loader2, Sparkles } from "lucide-react";
 import { useSearchProducts } from "@workspace/api-client-react";
@@ -17,9 +17,7 @@ const WORKFLOW_NODES = [
   { name: "Formatter", icon: "📋", description: "Structures the final response with rich product data, match scores, and explanations." },
 ];
 
-function WorkflowNode({ node, step, index, total }: { node: typeof WORKFLOW_NODES[0]; step?: WorkflowStep; index: number; total: number }) {
-  const status = step?.status || "pending";
-
+function WorkflowNode({ node, step, index, total, status }: { node: typeof WORKFLOW_NODES[0]; step?: WorkflowStep; index: number; total: number; status: string }) {
   return (
     <div className="flex flex-col items-center">
       <motion.div
@@ -80,19 +78,44 @@ export default function WorkflowPage() {
   const [query, setQuery] = useState("");
   const [workflowSteps, setWorkflowSteps] = useState<WorkflowStep[]>([]);
   const [hasRun, setHasRun] = useState(false);
+  const [activeStep, setActiveStep] = useState(-1);
 
   const { mutate: search, isPending } = useSearchProducts({
     mutation: {
       onSuccess: (data) => {
         setWorkflowSteps(data.workflow);
         setHasRun(true);
+        setActiveStep(WORKFLOW_NODES.length); // complete all simulated steps
       },
     },
   });
 
+  // Simulate progress through workflow nodes during loading
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+    if (isPending) {
+      setActiveStep(0);
+      interval = setInterval(() => {
+        setActiveStep((prev) => {
+          if (prev < WORKFLOW_NODES.length - 1) {
+            return prev + 1;
+          } else {
+            if (interval) clearInterval(interval);
+            return prev;
+          }
+        });
+      }, 800);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPending]);
+
   const handleSearch = (q: string) => {
     setQuery(q);
     setHasRun(false);
+    setWorkflowSteps([]);
+    setActiveStep(-1);
     search({ data: { query: q, apiKey: getApiKey() || undefined } });
   };
 
@@ -144,9 +167,9 @@ export default function WorkflowPage() {
             const step = getStepForNode(node.name);
             let status = "pending";
             if (isPending) {
-              const completedSoFar = workflowSteps.filter((s) => s.status === "complete").length;
-              if (i < completedSoFar) status = "complete";
-              else if (i === completedSoFar) status = "running";
+              if (i < activeStep) status = "complete";
+              else if (i === activeStep) status = "running";
+              else status = "pending";
             } else if (hasRun) {
               status = step?.status || "complete";
             }
@@ -158,6 +181,7 @@ export default function WorkflowPage() {
                 step={step}
                 index={i}
                 total={WORKFLOW_NODES.length}
+                status={status}
               />
             );
           })}
