@@ -295,5 +295,33 @@ class DesiFindsTestSuite(unittest.TestCase):
         self.assertIn("response", data_rec)
         self.assertIn("retrievedProducts", data_rec)
 
+    def test_24_retriever_filter_parsing(self):
+        """Test that retriever correctly parses min and max price constraints from queries."""
+        from backend.rag.retriever import parse_filters
+        
+        # Test max price parsing
+        f1 = parse_filters("Suggest skincare under 1500")
+        self.assertIn("max_price", f1)
+        self.assertEqual(f1["max_price"], 1500.0)
+        
+        f2 = parse_filters("moisturizer below 2k")
+        self.assertIn("max_price", f2)
+        self.assertEqual(f2["max_price"], 2000.0)
+        
+        # Test min price parsing
+        f3 = parse_filters("Jeans starting from 3000")
+        self.assertIn("min_price", f3)
+        self.assertEqual(f3["min_price"], 3000.0)
+        
+    def test_25_retriever_query_expansion(self):
+        """Test that query expansion correctly maps international brands to descriptive search tags."""
+        from backend.rag.retriever import expand_query
+        
+        eq = expand_query("moisturizer like CeraVe")
+        eq_lower = eq.lower()
+        self.assertIn("moisturizer", eq_lower)
+        self.assertIn("cerave", eq_lower)
+        self.assertIn("skincare moisturizer face cream", eq_lower)
+
 if __name__ == "__main__":
     unittest.main()

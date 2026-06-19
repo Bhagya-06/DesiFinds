@@ -196,22 +196,15 @@ def chat_assistant(payload: ChatInput):
             from openai import OpenAI
             client = OpenAI(api_key=api_key)
             
-            # Step A: Semantic retrieval from vector store if populated
-            # We always perform product semantic search to ensure product context is supplied to the LLM
-            from backend.ai.embeddings import get_openai_embeddings
-            q_emb_list = get_openai_embeddings([message], api_key)
-            if q_emb_list and vector_store.get_count() > 0:
-                retrieved_products = vector_store.query_products(q_emb_list[0], n_results=3)
-            else:
-                # Fallback to retriever keyword matching if vector store empty
-                retrieved_products = retriever.retrieve_alternatives(
-                    query=message,
-                    category=detected_cat,
-                    features=[],
-                    materials=[],
-                    api_key=api_key,
-                    n_results=3
-                )
+            # Step A: Hybrid retrieval from vector store + keyword matching
+            retrieved_products = retriever.retrieve_alternatives(
+                query=message,
+                category=detected_cat,
+                features=[],
+                materials=[],
+                api_key=api_key,
+                n_results=3
+            )
                 
             # Construct context from products
             context_blocks = []
@@ -260,8 +253,12 @@ def chat_assistant(payload: ChatInput):
                 )
                 
             system_prompt += (
+                "When recommending alternative products, you MUST present them in a clean Markdown Comparison Table with the following columns:\n"
+                "| Product Name | Brand | Price (INR) | Rating | Key Badges & Materials | Why It Matches / Value Prop |\n"
+                "|---|---|---|---|---|---|\n"
+                "Ensure every product matches the retrieved context and list only factually correct information. Never invent prices or URLs. "
                 "Always point the user to specific local brands and explain why they match the quality, material, or aesthetic of global brands.\n"
-                "Be premium, startup-like, helpful, and concise. Never make up URLs or prices. If you don't know, suggest checking explore."
+                "Be premium, helpful, concise, and startup-like."
             )
             
             messages = [{"role": "system", "content": system_prompt}]
@@ -318,18 +315,21 @@ def chat_assistant(payload: ChatInput):
         retrieved_products = []
     
     if retrieved_products:
-        reply_items = []
+        table_rows = [
+            "| Product Alternative | Brand | Price | Rating | Key Description |",
+            "| :--- | :--- | :--- | :--- | :--- |"
+        ]
         for p in retrieved_products:
-            rating_str = f" ⭐ {p['rating']}" if p.get('rating') else ""
+            rating_str = f"⭐ {p['rating']}" if p.get('rating') else "N/A"
             desc = p['description']
-            if len(desc) > 150:
-                desc = desc[:147] + "..."
-            reply_items.append(
-                f"- **{p['name']}** by {p['brand']}{rating_str} (₹{p['price']}): {desc}"
+            if len(desc) > 120:
+                desc = desc[:117] + "..."
+            table_rows.append(
+                f"| **{p['name']}** | {p['brand']} | ₹{p['price']} | {rating_str} | {desc} |"
             )
         product_reply = (
-            f"Here are some premium Indian alternatives in **{detected_cat}**:\n" + 
-            "\n".join(reply_items)
+            f"Here are some premium Indian alternatives matching your query in **{detected_cat}**:\n\n" + 
+            "\n".join(table_rows)
         )
         reply = brand_reply + product_reply + "\n\n*Tip: Input your OpenAI API key in the sidebar to engage in full AI-powered reasoning, buying guides, and pros/cons analysis!*"
     else:
