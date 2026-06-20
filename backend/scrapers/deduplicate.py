@@ -13,11 +13,12 @@ class Deduplicator:
         # Convert to Pandas DataFrame
         df = pd.DataFrame(products)
         
-        # Create composite key for comparison (case-insensitive and whitespace stripped)
+        # Create composite key for comparison (case-insensitive and whitespace stripped, including price)
         df["dedup_key"] = (
-            df["brand"].str.strip().str.lower() + "||" +
-            df["name"].str.strip().str.lower() + "||" +
-            df["category"].str.strip().str.lower()
+            df["brand"].astype(str).str.strip().str.lower() + "||" +
+            df["name"].astype(str).str.strip().str.lower() + "||" +
+            df["category"].astype(str).str.strip().str.lower() + "||" +
+            df["price"].astype(str).str.strip().str.lower()
         )
         
         # Sort so that records with valid ratings/reviewCounts or originalPrices are prioritized

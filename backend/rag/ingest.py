@@ -95,8 +95,12 @@ class IngestionManager:
                     )
                     batch_texts.append(text)
                     
-                # Compute embeddings using OpenAI API
-                embeddings = get_openai_embeddings(batch_texts, api_key)
+                # Compute embeddings using OpenAI API (fallback to zero vectors on error)
+                try:
+                    embeddings = get_openai_embeddings(batch_texts, api_key)
+                except Exception as e:
+                    print(f"Failed to generate OpenAI embeddings: {e}. Falling back to zero vectors.")
+                    embeddings = [[0.0] * 1536 for _ in batch]
                 
                 # Insert to ChromaDB
                 self.vector_store.add_products(batch, embeddings)

@@ -8,7 +8,7 @@ This report evaluates the **DesiFinds** application across Quality, UI, and Obse
 
 | Dimension | Score | Key Strengths & Evaluation Details |
 | :--- | :---: | :--- |
-| **Quality Score** | **9.5 / 10** | **3,151 real product catalog** loaded with 100% unique IDs. Full dynamic badge parsing has eliminated hardcoded data, and empty images/null prices are filled with category-specific mock placeholders. RAG fallback logic behaves flawlessly when OpenAI API keys are absent. |
+| **Quality Score** | **9.5 / 10** | **2,328 real product catalog** loaded with 100% unique IDs. Full dynamic badge parsing has eliminated hardcoded data, and empty images/null prices are filled with category-specific mock placeholders. RAG fallback logic behaves flawlessly when OpenAI API keys are absent. |
 | **UI Score** | **9.3 / 10** | Premium look-and-feel utilizing Outfit and Inter fonts. Gated wishlist action triggers an **AuthModal** to transition anonymous users into members. Responsive user profile avatar menu and scoped wishlists with empty-state illustrations. |
 | **Observability Score** | **9.0 / 10** | Direct **LangSmith** tracing configured for agent workflows. High transparency with dedicated endpoints `/api/healthz`, `/api/status`, and `/api/workflow` providing node-by-node pipeline trace tracking. |
 
@@ -16,13 +16,13 @@ This report evaluates the **DesiFinds** application across Quality, UI, and Obse
 
 ## 🔬 Test Suite Execution Log
 
-We ran the automated Python test suite at [test_suite.py](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/backend/tests/test_suite.py) checking data structures and backend endpoints. All **23 tests passed** successfully.
+We ran the automated Python test suite at [test_suite.py](file:///c:/Users/Bhagya%20B/Downloads/Desi-Finds/backend/tests/test_suite.py) checking data structures and backend endpoints. All **26 tests passed** successfully.
 
 ### Test Run Summary
-- **Tests Run**: 23
-- **Passed**: 23
+- **Tests Run**: 26
+- **Passed**: 26
 - **Failed**: 0
-- **Execution Time**: 0.222 seconds
+- **Execution Time**: 1.345 seconds
 
 ### Test Execution Details Table
 
@@ -51,6 +51,9 @@ We ran the automated Python test suite at [test_suite.py](file:///c:/Users/Bhagy
 | 21 | `test_21_api_product_details` | REST Endpoint | **PASS** | Single product queries return correct item info and 404 for invalid IDs. |
 | 22 | `test_22_api_chat_history` | REST Endpoint | **PASS** | Chat history cache stores and retrieves messaging objects. |
 | 23 | `test_23_api_chat_assistant_fallback` | RAG Fallback | **PASS** | Confirmed heuristic keyword search and brand founder details work when API key is null. |
+| 24 | `test_24_retriever_filter_parsing` | RAG Parser | **PASS** | Validated min/max price constraint parsing in query analyzer. |
+| 25 | `test_25_retriever_query_expansion` | RAG Expansion | **PASS** | Validated expanding international brand keywords into descriptive tags. |
+| 26 | `test_26_chat_scope_validation` | Chat Gating | **PASS** | Validated handling of out-of-scope requests and greetings. |
 
 ---
 

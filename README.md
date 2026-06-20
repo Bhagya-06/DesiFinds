@@ -16,7 +16,7 @@ DesiFinds is a premium, startup-style AI-powered Indian product discovery platfo
 
 ## 🌟 Key Features
 
-1. **Enterprise RAG System**: Leverages a localized **ChromaDB** vector store and dynamic **OpenAI Embeddings** to perform semantic search queries over a curated database of **3,151+ real products** across 14 categories.
+1. **Enterprise RAG System**: Leverages a localized **ChromaDB** vector store and dynamic **OpenAI Embeddings** to perform semantic search queries over a curated database of **2,328+ real products** across 14 categories.
 2. **Dynamic Contextual Badges**: Auto-extracts product quality and feature labels (e.g., *Eco-Friendly, Handcrafted, Premium Quality, Comfortable, Skin Friendly*) directly from live descriptions, tags, materials, and reviews.
 3. **User Authentication & Scoped Wishlists**: Includes a client-side login/signup system that persists sessions locally and stores wishlists on a per-user basis. Wishlisting is gated; anonymous users are guided to log in.
 4. **LangGraph Workflow Orchestration**: Implements a multi-agent orchestration state machine:
@@ -74,7 +74,7 @@ DesiFinds is a premium, startup-style AI-powered Indian product discovery platfo
 │   │   │   └── ...
 │   │   └── ...
 ├── data/
-│   ├── products.json          # 3,151+ item live scraped catalog
+│   ├── products.json          # 2,328+ item live scraped catalog
 │   └── chromadb/              # (Git-ignored) ChromaDB persistent vectors
 ├── start.bat                  # Quick-start local run script (Windows)
 ├── .env.example               # Template for environment configuration
@@ -141,3 +141,13 @@ For testing purposes, you can generate 3,000 synthetic products using the seeder
 pnpm --filter @workspace/scripts exec tsx ./src/seed-products.ts
 ```
 *(After seeding mock data, run `python -m backend.scrapers.enrich_existing` to fill in rating and price fields).*
+
+### 3. Kaggle Datasets Ingestion Pipeline
+To programmatically download, clean, and consolidate products from the **Indian E-commerce Dataset (INR)** (`amaymishra11/indian-e-commerce-dataset-inr`) and the **Indian Products on Amazon (Reviews)** dataset (`nehaprabhavalkar/indian-products-on-amazon`) using `kagglehub` (which downloads public datasets anonymously without credential configuration), run:
+```bash
+cd backend
+.venv\Scripts\activate
+python -m backend.scrapers.ingest_external_data
+```
+This runs the full cleaning pipeline, validates URLs, resolves Pandas serialization float NaN trap issues, generates search fallbacks, and updates the RAG database.
+
