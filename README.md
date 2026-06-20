@@ -1,6 +1,7 @@
 # DesiFinds - Find Better. Find Indian. 🇮🇳
 
 DesiFinds is a premium, startup-style AI-powered Indian product discovery platform. Users can input any international product name, brand, description, or URL, and the platform discovers and recommends high-quality, premium Indian alternatives matching in category, materials, features, craftsmanship, and aesthetic style - at a significantly better value.
+
 Live Link - https://desifinds.vercel.app/
 ---
 
