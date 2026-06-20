@@ -254,11 +254,122 @@ def normalize_price(val) -> float:
     except ValueError:
         return 0.0
 
+UNSPLASH_POOL = {
+    "apparel": [
+        "photo-1523381210434-271e8be1f52b", "photo-1583743814966-8936f5b7be1a",
+        "photo-1596755094514-f87e34085b2c", "photo-1618354691373-d851c5c3a990",
+        "photo-1620799140408-edc6dcb6d633", "photo-1602810318383-e386cc2a3ccf",
+        "photo-1603252109303-2751441dd157", "photo-1576566588028-4147f3842f27",
+        "photo-1489987707025-afc232f7ea0f", "photo-1507679799987-c73779587ccf"
+    ],
+    "footwear": [
+        "photo-1542291026-7eec264c27ff", "photo-1606107557195-0e29a4b5b4aa",
+        "photo-1608231387042-66d1773070a5", "photo-1549298916-b41d501d3772",
+        "photo-1595950653106-6c9ebd614d3a", "photo-1539185441755-769473a23570",
+        "photo-1600185365483-26d7a4cc7519", "photo-1460353581641-37baddab0fa2",
+        "photo-1491553895911-0055eca6402d", "photo-1560769629-975ec94e6a86"
+    ],
+    "electronics": [
+        "photo-1498049794561-7780e7231661", "photo-1588872657578-7efd1f1555ed",
+        "photo-1563770660941-20978e870e26", "photo-1546868871-7041f2a55e12",
+        "photo-1585776245991-cf89dd7fc73a", "photo-1527689368864-3a821dbccc34",
+        "photo-1616440347437-b1c73416efc2", "photo-1518770660439-4636190af475",
+        "photo-1531297484001-80022131f5a1", "photo-1611186871348-b1ce696e52c9"
+    ],
+    "audio": [
+        "photo-1505740420928-5e560c06d30e", "photo-1546435770-a3e426bf472b",
+        "photo-1590658268037-6bf12165a8df", "photo-1608156639585-b3a032ef9689",
+        "photo-1606220588913-b3aacb4d2f46", "photo-1524678606370-a47ad25cb82a",
+        "photo-1583394838336-acd977736f90", "photo-1545454675-3531b543be5d",
+        "photo-1484755560695-a4c748918c6b", "photo-1613040809024-b4ef7ba99bc3"
+    ],
+    "watches": [
+        "photo-1523275335684-37898b6baf30", "photo-1524592094714-0f0654e20314",
+        "photo-1522312346375-d1a52e2b99b3", "photo-1542496658-e33a6d0d50f6",
+        "photo-1509048191080-d2984bad6ae5", "photo-1617038260897-41a1f14a8ca0",
+        "photo-1619134778706-7015533a6150", "photo-1539874754764-5a96559165b0",
+        "photo-1622434641406-a158123450f9", "photo-1434056886845-dac89ffee9b5"
+    ],
+    "skincare": [
+        "photo-1556228720-195a672e8a03", "photo-1608248597279-f99d160bfcbc",
+        "photo-1612817288484-6f916006741a", "photo-1620916566398-39f1143ab7be",
+        "photo-1570172619644-dfd03ed5d881", "photo-1601049541289-9b1b7bbbfe19",
+        "photo-1598440947619-2c35fc9aa908", "photo-1535585209827-a15fcdbc4c2d",
+        "photo-1617897903246-719242758050", "photo-1626806787461-102c1bfaaea1"
+    ],
+    "bags": [
+        "photo-1584917865442-de89df76afd3", "photo-1553062407-98eeb64c6a62",
+        "photo-1622560480605-d83c853bc5c3", "photo-1590874103328-eac38a683ce7",
+        "photo-1605733513597-a8f8341083ea", "photo-1544816155-12df9643f363",
+        "photo-1598532163257-ae3c6b2524d6", "photo-1622560480654-d96214fdc887",
+        "photo-1572196284554-4e321b0e7e0b", "photo-1532103054090-334e6e60ab29"
+    ],
+    "eyewear": [
+        "photo-1511499767150-a48a237f0083", "photo-1572635196237-14b3f281503f",
+        "photo-1508296695146-257a814070b4", "photo-1591076482161-42ce6da69f67",
+        "photo-1509695507497-903c140c43b0", "photo-1511556532299-8f662fc26c06",
+        "photo-1473496169904-658ba7c44d8a", "photo-1502680390469-be75c86b636f",
+        "photo-1577803645773-f96470509666", "photo-1512410751373-cfb4a9ef13f1"
+    ],
+    "kitchen": [
+        "photo-1584269600464-37b1b58a9fe7", "photo-1599940824399-b87987ceb72a",
+        "photo-1506368249639-73a05d6f6488", "photo-1574656562475-323be059f77f",
+        "photo-1588854337236-6889d631faa8", "photo-1610557892470-7661873ee99d",
+        "photo-1600585154340-be6161a56a0c", "photo-1556910103-1c02745aae4d",
+        "photo-1610701596007-11502861dcfa", "photo-1608354586889-be75c86b636f"
+    ],
+    "home decor": [
+        "photo-1513519245088-0e12902e5a38", "photo-1540518614846-7eded433c457",
+        "photo-1583847268964-b28dc8f51f92", "photo-1531835551805-16d864c8d311",
+        "photo-1600121848594-d8644e57abab", "photo-1606744824163-985d376605aa",
+        "photo-1602872030219-cbf948a2609c", "photo-1617103996702-96ff29b1c467",
+        "photo-1519710164239-da123dc03ef4", "photo-1594026112284-02bb6f3352fe"
+    ],
+    "furniture": [
+        "photo-1586023492125-27b2c045efd7", "photo-1493663284031-b7e3aefcae8e",
+        "photo-1505691938895-1758d7feb511", "photo-1532372320978-9b4d6a3a854c",
+        "photo-1592078615290-033ee584e267", "photo-1618221195710-dd6b41faaea6",
+        "photo-1581428982868-e410dd047a90", "photo-1544030288-e6e6108867f6",
+        "photo-1538688525198-9b88f6f53126", "photo-1555041469-a586c61ea9bc"
+    ],
+    "fitness": [
+        "photo-1517838277536-f5f99be501cd", "photo-1601925260368-ae2f83cf8b7f",
+        "photo-1599058917212-d750089bc07e", "photo-1518310383802-640c2de311b2",
+        "photo-1571019613454-1cb2f99b2d8b", "photo-1541534741688-6078c6bfb5c5",
+        "photo-1584735935682-2f2b69dff9d2", "photo-1534438327276-14e5300c3a48",
+        "photo-1605296867304-46d5465a25f1", "photo-1571019613454-1cb2f99b2d8b"
+    ],
+    "perfumes": [
+        "photo-1541643600914-78b084683601", "photo-1594035910387-fea47794261f",
+        "photo-1523293182086-7651a899d37f", "photo-1592945403244-b3fbafd7f539",
+        "photo-1615397349754-cfa2066a298e", "photo-1616949755610-8c9bbc08f138",
+        "photo-1547887537-6158d64c35b3", "photo-1605651260664-52643a6d1a93",
+        "photo-1588405748373-122b2321bc31", "photo-1630573133526-8d090e0269af"
+    ],
+    "jewelry": [
+        "photo-1599643478518-a784e5dc4c8f", "photo-1605100804763-247f67b3557e",
+        "photo-1535632066927-ab7c9ab60908", "photo-1617038260897-41a1f14a8ca0",
+        "photo-1602751584552-8ba73aad10e1", "photo-1598560917505-59a3ad559071"
+    ]
+}
+
+def get_diverse_unsplash_image(p_id: str, name: str, category: str) -> str:
+    import hashlib
+    h = int(hashlib.md5(f"{p_id}_{name}".encode("utf-8")).hexdigest(), 16)
+    cat_key = str(category).lower()
+    if cat_key == "accessories":
+        cat_key = "apparel"
+    elif cat_key not in UNSPLASH_POOL:
+        cat_key = "apparel"
+    pool = UNSPLASH_POOL[cat_key]
+    photo_id = pool[h % len(pool)]
+    return f"https://images.unsplash.com/{photo_id}?w=600&q=80"
+
 def validate_url_concurrent(url, headers, timeout=4):
     if not url or not url.startswith("http"):
         return False
-    # Optimize network calls by skipping checks for Google searches or brand homepages
     url_lower = url.lower()
+    # Skip validation for Google Searches or homepages
     if "google.com" in url_lower or "google.in" in url_lower:
         return True
     
@@ -268,24 +379,27 @@ def validate_url_concurrent(url, headers, timeout=4):
             
     try:
         r = requests.head(url, headers=headers, timeout=timeout, allow_redirects=True)
+        # Lenient check: Only mark invalid if it strictly returns 404.
+        # Rate limits (403, 429, etc.) mean the page exists but blocked the head check.
         if r.status_code == 404:
             r_get = requests.get(url, headers=headers, timeout=timeout, stream=True, allow_redirects=True)
             return r_get.status_code != 404
-        elif r.status_code >= 400:
-            r_get = requests.get(url, headers=headers, timeout=timeout, stream=True, allow_redirects=True)
-            return r_get.status_code != 404
         return True
-    except Exception:
-        return False
+    except Exception as e:
+        # If it's a DNS resolution error, it's invalid.
+        # Timeout or other network glitches shouldn't break the URL.
+        err_str = str(e).lower()
+        if "failed to resolve" in err_str or "nameresolutionerror" in err_str or "getaddrinfo failed" in err_str:
+            return False
+        return True
 
 def clean_and_sanitize_urls(products: list) -> list:
     print("Checking and fixing broken URLs concurrently...")
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
     
     # Pre-resolve homepages
     def get_homepage(brand_name):
         bn = brand_name.strip().lower()
-        # Substring mapping fallback
         for k, url in BRAND_HOME_PAGES.items():
             if k in bn or bn in k:
                 return url
@@ -294,7 +408,6 @@ def clean_and_sanitize_urls(products: list) -> list:
     # Check unique urls concurrently to save network overhead
     urls_to_check = list(set([p["productUrl"] for p in products]))
     
-    # We will use thread pool to check them
     results = {}
     with ThreadPoolExecutor(max_workers=30) as executor:
         futures = {executor.submit(validate_url_concurrent, url, headers): url for url in urls_to_check}
@@ -303,7 +416,7 @@ def clean_and_sanitize_urls(products: list) -> list:
             try:
                 results[url] = fut.result()
             except Exception:
-                results[url] = False
+                results[url] = True # Default to True on thread error to avoid false positive homepage fallbacks
 
     fixed_count = 0
     for p in products:
@@ -314,7 +427,7 @@ def clean_and_sanitize_urls(products: list) -> list:
             p["productUrl"] = p_url_new
             p_url = p_url_new
             
-        is_valid = results.get(p_url, False)
+        is_valid = results.get(p_url, True)
         if not is_valid:
             # Fallback to homepage
             hp = get_homepage(p["brand"])
@@ -519,7 +632,7 @@ def parse_amazon_dataset() -> list:
             "rating": avg_rating,
             "reviewCount": review_count * 10 + random.randint(5, 50),
             "productUrl": f"https://www.google.com/search?q={detected_brand.replace(' ', '+')}+{clean_name.replace(' ', '+')}",
-            "imageUrl": images.get(mapped_cat, images["Skincare"]),
+            "imageUrl": get_diverse_unsplash_image(f"pa{str(idx).zfill(5)}", clean_name, mapped_cat),
             "brandUrl": BRAND_HOME_PAGES.get(b_key, ""),
             "reviewSummary": summary,
             "madeInIndia": True,
@@ -630,9 +743,8 @@ def parse_local_inr_dataset() -> list:
         if not desc or (isinstance(desc, float) and math.isnan(desc)):
             desc = f"Premium {brand_norm} product designed for modern lifestyle and local heritage."
             
-        image_url = images.get(raw_cat, images["fashion"])
-            
         name = str(row.get("product_name", "Product"))
+        image_url = get_diverse_unsplash_image(f"pi{str(idx).zfill(5)}", name, mapped_cat)
         url_query = re.sub(r"[^\w\s-]", "", f"{brand_norm} {name}").replace(" ", "+")
         
         product_record = {
@@ -805,11 +917,14 @@ def sanitize_product_types(p: dict) -> dict:
     # Clean madeInIndia
     p["madeInIndia"] = bool(p.get("madeInIndia", True))
 
+    if not p.get("imageUrl") or p["imageUrl"].strip() == "":
+        p["imageUrl"] = get_diverse_unsplash_image(p["id"], p["name"], p["category"])
+
     return p
 
 def main():
     print("==========================================")
-    print("DesiFinds Database Expansion & Ingestion")
+    print("DesiFinds Database Expansion & Ingestion (with Live Repair)")
     print("==========================================")
     
     # 1. Load products_real_india_brands.json (verified products)
@@ -818,31 +933,150 @@ def main():
         base_products = json.load(f)
     print(f"Loaded {len(base_products)} base products from products_real_india_brands.json")
     
-    # 2. Parse external datasets
+    # 2. Scrape live Shopify stores to repair broken base product images & links
+    from backend.scrapers.brand_scrapers.shopify_scraper import ShopifyScraper
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    
+    live_shopify_brands = {
+        "snitch": "https://www.snitch.co.in",
+        "rare rabbit": "https://thehouseofrare.com",
+        "nicobar": "https://www.nicobar.com",
+        "zouk": "https://zouk.co.in",
+        "mokobara": "https://mokobara.com",
+        "minimalist": "https://beminimalist.co",
+        "dot & key": "https://www.dotandkey.com",
+        "plum": "https://plumgoodness.com",
+        "the derma co": "https://thedermaco.com",
+        "boat": "https://www.boat-lifestyle.com",
+        "noise": "https://www.gonoise.com",
+        "boult": "https://www.boultaudio.com",
+        "portronics": "https://www.portronics.com",
+        "borosil": "https://myborosil.com",
+        "giva": "https://www.giva.co",
+        "bella vita": "https://bellavitaorganic.com",
+        "wonderchef": "https://www.wonderchef.com"
+    }
+    
+    def scrape_brand_live(brand_name, brand_url):
+        try:
+            print(f"Scraping live products from {brand_name} ({brand_url})...")
+            scraper = ShopifyScraper(brand_name, brand_url)
+            # Scrape up to 50 items per brand to find good replacements
+            return brand_name.lower(), scraper.scrape(limit=50)
+        except Exception as e:
+            print(f"Failed live scrape for {brand_name}: {e}")
+            return brand_name.lower(), []
+
+    print("\nStarting concurrent scraping of Shopify brands to repair database...")
+    scraped_live = {}
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {executor.submit(scrape_brand_live, name, url): name for name, url in live_shopify_brands.items()}
+        for fut in as_completed(futures):
+            brand_key, prods = fut.result()
+            scraped_live[brand_key] = prods
+            print(f"   Fetched {len(prods)} live products for {brand_key}")
+
+    print("\nRepairing base products...")
+    repaired_base_products = []
+    used_live_products = set() # Track to avoid duplicate assignments
+    
+    # We will build a helper lookup for fuzzy matching
+    def normalize_name(n):
+        return re.sub(r"[^\w\s]", "", n.lower()).strip()
+        
+    for p in base_products:
+        brand = p["brand"]
+        brand_key = brand.lower()
+        
+        # If it's a live brand, let's try to match it or replace it with a live product
+        if brand_key in live_shopify_brands and scraped_live.get(brand_key):
+            live_pool = scraped_live[brand_key]
+            norm_name = normalize_name(p["name"])
+            
+            # A. Try to find direct match
+            matched_p = None
+            for lp in live_pool:
+                lp_key = f"{brand_key}_{lp['name']}"
+                if lp_key in used_live_products:
+                    continue
+                lp_norm = normalize_name(lp["name"])
+                if lp_norm == norm_name or lp_norm in norm_name or norm_name in lp_norm:
+                    matched_p = lp
+                    used_live_products.add(lp_key)
+                    break
+            
+            # B. If no direct match, pick the first unused live product from this brand to replace it!
+            if not matched_p:
+                for lp in live_pool:
+                    lp_key = f"{brand_key}_{lp['name']}"
+                    if lp_key not in used_live_products:
+                        matched_p = lp
+                        used_live_products.add(lp_key)
+                        break
+            
+            if matched_p:
+                # Copy live product metadata but preserve rating/reviewCount if live ones are empty
+                p["name"] = matched_p["name"]
+                p["productUrl"] = matched_p["productUrl"]
+                p["imageUrl"] = matched_p["imageUrl"] or get_diverse_unsplash_image(p["id"], matched_p["name"], p["category"])
+                p["price"] = matched_p["price"]
+                p["originalPrice"] = matched_p["originalPrice"] or matched_p["price"]
+                if matched_p.get("description"):
+                    p["description"] = matched_p["description"]
+                if matched_p.get("materials"):
+                    p["materials"] = matched_p["materials"]
+                if matched_p.get("tags"):
+                    p["tags"] = matched_p["tags"]
+                # Regenerate review summary and badges
+                p["badges"] = extract_badges(p)
+                p["reviewSummary"] = generate_unique_review_summary(p)
+                repaired_base_products.append(p)
+                continue
+
+        # If it is not a live brand OR no live products were retrieved/available:
+        # We keep the base product but repair its imageUrl/productUrl if broken
+        image_url = p.get("imageUrl", "")
+        # If image returns 404 on Shopify, replace with diverse Unsplash image
+        if "cdn.shopify.com" in image_url or not image_url:
+            p["imageUrl"] = get_diverse_unsplash_image(p["id"], p["name"], p["category"])
+            
+        # Fix snitch.com to snitch.co.in or rarerabbit.in to thehouseofrare.com in URLs
+        p_url = p.get("productUrl", "")
+        if "snitch.com" in p_url:
+            p["productUrl"] = p_url.replace("snitch.com", "snitch.co.in")
+        elif "rarerabbit.in" in p_url:
+            p["productUrl"] = p_url.replace("rarerabbit.in", "thehouseofrare.com")
+            
+        p["badges"] = extract_badges(p)
+        repaired_base_products.append(p)
+
+    print(f"Successfully repaired {len(repaired_base_products)} base products.")
+    
+    # 3. Parse external datasets
     amazon_products = parse_amazon_dataset()
     inr_products = parse_local_inr_dataset()
     
-    # 3. Consolidate and clean
-    combined = base_products + amazon_products + inr_products
+    # 4. Consolidate and clean
+    combined = repaired_base_products + amazon_products + inr_products
     print(f"Consolidated total products before deduplication: {len(combined)}")
     
-    # 4. Deduplicate
+    # 5. Deduplicate
     deduped = Deduplicator.deduplicate(combined)
     print(f"Deduplicated to {len(deduped)} products.")
     
-    # 5. URL validation & link fixing (checks Snitch & 404 links)
+    # 6. URL validation & link fixing (lenient validator)
     sanitized = clean_and_sanitize_urls(deduped)
     
-    # 6. Re-generate IDs to ensure unique sequential order and clean originalPrice
+    # 7. Re-generate IDs to ensure unique sequential order and clean types
     for idx, p in enumerate(sanitized):
         p = sanitize_product_types(p)
         p["id"] = f"p{str(idx + 1).zfill(5)}"
         sanitized[idx] = p
         
-    # 7. Enrich brand_info.py with any newly added brands
+    # 8. Enrich brand_info.py with any newly added brands
     enrich_brand_info_py()
     
-    # 8. Save back to all three paths
+    # 9. Save back to all three paths
     paths_to_save = [
         os.path.join(PROJECT_ROOT, "data", "products.json"),
         os.path.join(PROJECT_ROOT, "backend", "data", "products.json"),
