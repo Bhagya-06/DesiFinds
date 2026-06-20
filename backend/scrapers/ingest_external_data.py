@@ -783,6 +783,25 @@ def sanitize_product_types(p: dict) -> dict:
         else:
             p[field] = str(val)
 
+    # Clean flixcart image URLs which are hotlink protected
+    image_url = p.get("imageUrl", "")
+    if "flixcart.com" in image_url or "rukminim" in image_url:
+        cat_lower = str(p.get("category", "")).lower()
+        images_map = {
+            "apparel": "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&q=80",
+            "footwear": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80",
+            "skincare": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&q=80",
+            "audio": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
+            "watches": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
+            "bags": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80",
+            "eyewear": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&q=80",
+            "kitchen": "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?w=600&q=80",
+            "home decor": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&q=80",
+            "furniture": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80",
+            "electronics": "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&q=80",
+        }
+        p["imageUrl"] = images_map.get(cat_lower, images_map["apparel"])
+
     # Clean madeInIndia
     p["madeInIndia"] = bool(p.get("madeInIndia", True))
 
