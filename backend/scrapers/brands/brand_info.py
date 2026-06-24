@@ -200,7 +200,7 @@ BRAND_METADATA = {
         "founded": "2020",
         "founders": "Siddharth Dungarwal",
         "story": "Started as a B2B brand before pivoting to D2C in 2020, Snitch gained national fame on Shark Tank India Season 2, securing an all-shark deal for its ultra-fast trend turnarounds.",
-        "websiteUrl": "https://www.snitch.co.in",
+        "websiteUrl": "https://www.snitch.com",
         "categories": ["Apparel"],
         "featured": True
     },
@@ -211,7 +211,7 @@ BRAND_METADATA = {
         "founded": "2015",
         "founders": "Manish Poddar and Akshika Poddar",
         "story": "Launched by House of Three under Manish Poddar, Rare Rabbit redefined Indian premium casual fashion by focusing on sophisticated tailoring, high-quality linen/cotton, and aesthetic styling.",
-        "websiteUrl": "https://rarerabbit.in",
+        "websiteUrl": "https://thehouseofrare.com",
         "categories": ["Apparel"],
         "featured": True
     },
@@ -222,7 +222,7 @@ BRAND_METADATA = {
         "founded": "2012",
         "founders": "Akshay Narvekar",
         "story": "Founded to solve the issue of standard sizes not fitting Indian body shapes, BSC offers premium custom tailoring online and in stores using premium fabrics like Giza cotton and French linen.",
-        "websiteUrl": "https://bombaytshirtcompany.com",
+        "websiteUrl": "https://www.bombayshirts.com",
         "categories": ["Apparel"],
         "featured": True
     },
@@ -321,7 +321,7 @@ BRAND_METADATA = {
         "founded": "2020",
         "founders": "Varun Alagh and Ghazal Alagh (Honasa Consumer)",
         "story": "A subsidiary of Honasa Consumer (Mamaearth), The Derma Co provides active science formulations that focus on specific dermatological concerns under expert guidance.",
-        "websiteUrl": "https://thedermacompany.com",
+        "websiteUrl": "https://thedermaco.com",
         "categories": ["Skincare"],
         "featured": True
     },
@@ -354,7 +354,7 @@ BRAND_METADATA = {
         "founded": "2017",
         "founders": "Varun Gupta and Tarun Gupta",
         "story": "Focused on acoustic engineering and premium finishes, Boult provides high-fidelity, ergonomic neckbands and ear pods competing with JBL and Skullcandy.",
-        "websiteUrl": "https://boult.com",
+        "websiteUrl": "https://www.boultaudio.com",
         "categories": ["Audio"],
         "featured": True
     },
@@ -442,7 +442,7 @@ BRAND_METADATA = {
         "founded": "1962",
         "founders": "Dr. Lele (under Kheruka family leadership)",
         "story": "Initially set up to manufacture industrial borosilicate glassware, it transitioned under the Kheruka family to become the gold standard of microwave-safe glassware, lunchboxes, and kitchen appliances in India.",
-        "websiteUrl": "https://www.borosil.com",
+        "websiteUrl": "https://myborosil.com",
         "categories": ["Kitchen"],
         "featured": True
     },

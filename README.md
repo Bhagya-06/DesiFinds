@@ -17,7 +17,7 @@ Live Link - https://desifinds.vercel.app/
 
 ## 🌟 Key Features
 
-1. **Enterprise RAG System**: Leverages a localized **ChromaDB** vector store and dynamic **OpenAI Embeddings** to perform semantic search queries over a curated database of **2,328+ real products** across 14 categories.
+1. **Enterprise RAG System**: Leverages a localized **ChromaDB** vector store and dynamic **OpenAI Embeddings** to perform semantic search queries over a curated database of **2,769+ real products** across 14 categories.
 2. **Dynamic Contextual Badges**: Auto-extracts product quality and feature labels (e.g., *Eco-Friendly, Handcrafted, Premium Quality, Comfortable, Skin Friendly*) directly from live descriptions, tags, materials, and reviews.
 3. **User Authentication & Scoped Wishlists**: Includes a client-side login/signup system that persists sessions locally and stores wishlists on a per-user basis. Wishlisting is gated; anonymous users are guided to log in.
 4. **LangGraph Workflow Orchestration**: Implements a multi-agent orchestration state machine:
@@ -28,6 +28,7 @@ Live Link - https://desifinds.vercel.app/
    - **Formatter**: Packs the final discovery state into standard JSON.
 5. **AI Chatbot Shopping Assistant**: An interactive RAG chatbot allowing comparisons, recommendations, and buying advice with sustained context history.
 6. **Data Scrapers**: Built-in BeautifulSoup and Shopify product scraper (`master_pipeline.py`) that extracts live, real product data directly from brand feeds.
+7. **Cleaned & Validated Database**: Includes 100% working product links, Unsplash images related to product names, and distinct prices (`originalPrice > price`) showing valid discounts. Unnecessary files (like `scraped_images.json`) have been pruned.
 
 ---
 
@@ -75,7 +76,8 @@ Live Link - https://desifinds.vercel.app/
 │   │   │   └── ...
 │   │   └── ...
 ├── data/
-│   ├── products.json          # 2,328+ item live scraped catalog
+│   ├── products.json          # 2,769+ item consolidated live scraped & Kaggle catalog
+│   ├── external_kaggle_products.json # Raw external Kaggle products dataset
 │   └── chromadb/              # (Git-ignored) ChromaDB persistent vectors
 ├── start.bat                  # Quick-start local run script (Windows)
 ├── .env.example               # Template for environment configuration
